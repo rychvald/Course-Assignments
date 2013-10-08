@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -20,10 +21,10 @@ import javax.crypto.spec.SecretKeySpec;
 public class Encryptor {
 
 	public String algorithm = "HmacMD5";
-	private SecretKey secretkey = null;
+	private SecretKeySpec secretkey = null;
 	private File root = null;
-	private String sep = ",";
 	private String cipherFile = ".cipherIndex.txt";
+	private String indexFile = ".fileIndex.txt";
 	
 	public Encryptor(String exceptions, File root, String password) {
 		this.root = root;
@@ -33,14 +34,15 @@ public class Encryptor {
 	}
 	
 	private void createKeyFromString(String password) {
-		byte[] keydata = password.getBytes();
-		//secretkey = new SecretKeySpec(keydata, "HmacMD5");
+		byte[] keydata;
 		try {
-			secretkey = KeyGenerator.getInstance(algorithm).generateKey();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
+			keydata = password.getBytes("UTF-8");
+			secretkey = new SecretKeySpec(keydata, this.algorithm);
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("Problem with encoding!");
 			e.printStackTrace();
 		}
+		//secretkey = new SecretKeySpec(keydata, "HmacMD5");
 	}
 	
 	public void index() {
@@ -48,15 +50,22 @@ public class Encryptor {
 	}
 	
 	private void index(File dir) {
+		assert(dir.isDirectory());
 		File[] children = dir.listFiles();
-		for (String s : dir.list()) {
-			System.out.println(s);
-		}
-		PrintWriter out = null;
+
+		PrintWriter indexout = null , cipherout = null;
 		
 		try {
 			File indexFile = new File(dir, this.cipherFile);
-			out = new PrintWriter(new FileWriter(indexFile));
+			cipherout = new PrintWriter(new FileWriter(indexFile));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			File indexFile = new File(dir, this.indexFile);
+			indexout = new PrintWriter(new FileWriter(indexFile));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -65,17 +74,16 @@ public class Encryptor {
 		
 		for (File file : children) {
 			if (file.isHidden()) {
-				System.out.println("hidden file: " + file.getName());
 				continue;
 			}else if (file.isDirectory()) {
 				this.index(file);
 			}
-			System.out.println(file.getName());
 			byte[] ciphertext = this.encrypt(file);
-			String line = file.getName() + this.sep + new String(ciphertext);
-			out.println(line);
+			cipherout.println(ciphertext);
+			indexout.println(file.getName());
 		}
-		out.close();
+		cipherout.close();
+		indexout.close();
 	}
 	
 	private byte[] encrypt (File f) {		
@@ -91,7 +99,7 @@ public class Encryptor {
 			hmac = Mac.getInstance(this.algorithm);
 			hmac.init(this.secretkey);
 			ciphertext = hmac.doFinal(data);
-			System.out.print(ciphertext);
+			System.out.println("OldHash:" + ciphertext);
 		} catch (FileNotFoundException e) {
 			System.out.println("The File provided does not exist!");
 			e.printStackTrace();
@@ -113,61 +121,100 @@ public class Encryptor {
 		this.analyze(root);
 	}
 	
+	//generates a String with the contents of the CipherFile in the directory dir
 	private void analyze(File dir) {
-		Set<String> children = new HashSet<String>(Arrays.asList(dir.list()));
-		Set<String> previousChildren = this.previousChildren(dir);
-		Set<String> modified = new HashSet<String>(), deleted, newFiles = new HashSet<String>();
-		
-		Set<String> previousCiphers = this.previousCiphers(dir);
-		
-		for ( String child : children) {
-			if ( previousChildren.contains(child)) {
-				previousChildren.remove(child);
-			} else if ( !previousChildren.contains(child) ) {
-				newFiles.add(child);
-			}
-		} //now, previousChildren contains but the deleted files and newFiles all the new files
-		
+		assert(dir.isDirectory());
+		HashSet<String> children = this.currentChildren(dir);
+		HashSet<String> previousChildren = this.previousChildren(dir);
+		HashSet<byte[]> previousCiphers = this.previousCiphers(dir);
+		HashSet<String> modified, deleted, newFiles ;
+
 		deleted = new HashSet<String>(previousChildren);
+		deleted.removeAll(children);
 		
+		newFiles = new HashSet<String>(children);
+		newFiles.removeAll(previousChildren);
 		
+		modified = new HashSet<String>(previousChildren);
+		modified.retainAll(children);
+		modified = modifiedFiles (dir , modified , previousCiphers);
+		
+		System.out.println("Previous Children:");
+		System.out.println(previousChildren.toString());
+		
+		System.out.println("Current Children:");
+		System.out.println(children.toString());
+		
+		System.out.println("Files deleted:");
+		System.out.println(deleted.toString());
+		
+		System.out.println("Files added:");
+		System.out.println(newFiles.toString());
+		
+		System.out.println("Files modified:");
+		System.out.println(modified.toString());
+		
+		for (File f : dir.listFiles()) {
+			if ( f.isDirectory()) {
+				this.analyze(f);
+			}
+		}
 		
 	}
 	
+	//generates a String with one (not hidden) file per line contained in the directory given
+		private HashSet<String> currentChildren (File dir) {
+			assert(dir.isDirectory());
+			File[] children = dir.listFiles();
+			HashSet<String> currentChildren  = new HashSet<String>();
+			
+			for (File file : children) {
+				if (file.isHidden()) {
+					continue;
+				}else {
+					currentChildren.add(file.getName());
+				}
+			}
+			
+			return currentChildren;
+		}
+	
+	//generates a String with the contents of the indexFile in the directory dir
 	private HashSet<String> previousChildren (File dir) {
+		assert(dir.isDirectory());
 		HashSet<String> previousChildren = new HashSet<String>();
-		String cipherContents = this.cipherContents(dir);
+		String cipherContents = this.indexContents(dir, this.indexFile);
 		
-		for ( String line : cipherContents.split("\n") ) {
-			String filename = line.split(this.sep)[0];
+		for ( String filename : cipherContents.split("\n") ) {
 			previousChildren.add(filename);
 		}
 		
 		return previousChildren;
 	}
 	
-	private HashSet<String> previousCiphers (File dir) {
-		HashSet<String> previousCiphers = new HashSet<String>();
-		String cipherContents = this.cipherContents(dir);
+	//generates a String with the contents of the CipherFile in the directory dir
+	private HashSet<byte[]> previousCiphers (File dir) {
+		HashSet<byte[]> previousCiphers = new HashSet<byte[]>();
+		String cipherContents = this.indexContents(dir , this.cipherFile);
 		
-		for ( String line : cipherContents.split("\n") ) {
-			String filename = line.split(this.sep)[1];
-			previousCiphers.add(filename);
+		for ( String cipher : cipherContents.split("\n") ) {
+			previousCiphers.add(cipher.getBytes());
 		}
 		
 		return previousCiphers;
 	}
 	
-	private String cipherContents (File dir) {
+	//generates a String with the contents of the CipherFile in the directory dir
+	private String indexContents (File dir , String index) {
 		String filename = null;
-		String lines = null;
+		String lines = "";
 		
 		try {
-			filename = dir.getCanonicalPath() + File.separator + this.cipherFile;
+			filename = dir.getCanonicalPath() + File.separator + index;
 			BufferedReader in = new BufferedReader(new FileReader(filename));
 			String line;
 			while((line = in.readLine()) != null) {
-				lines = new String(lines + line);
+				lines = new String(lines + line + "\n");
 			}
 			in.close();
 		} catch (IOException e) {
@@ -177,6 +224,21 @@ public class Encryptor {
 		
 		
 		return lines;
+	}
+	
+	//checks whether the current ciphers are contained in the previous ciphers
+	private HashSet<String> modifiedFiles (File dir , HashSet<String> files , HashSet<byte[]> previousCiphers) {
+		HashSet <String> modified = new HashSet<String>();
+		
+		for ( String s : files) {
+			File f = new File(dir.getAbsolutePath(),s);
+			byte[] hash = this.encrypt(f);
+			System.out.println("Current Hash:" + hash);
+			if (!previousCiphers.contains(hash.toString())) {
+				modified.add(s);
+			} 
+		}
+		return modified;
 	}
 	
 }

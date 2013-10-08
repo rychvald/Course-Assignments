@@ -5,9 +5,11 @@ public class Heimdall {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String exceptions;
+		String mode,exceptions;
+		
+		mode = args[0];
 		try {
-			exceptions = args[0];
+			exceptions = args[1];
 		} catch(ArrayIndexOutOfBoundsException e) {
 			System.out.println("No Exceptions");
 			exceptions = "";
@@ -16,7 +18,11 @@ public class Heimdall {
 		String password = "testpassword";
 		
 		Encryptor encryptor = new Encryptor(exceptions, root, password);
-		encryptor.index();
+		if ( mode.equals("index")) {
+			encryptor.index();
+		} else if (mode.equals("analyze")) {
+			encryptor.analyze();
+		}
 		
 		System.out.println("finished!");
 	}
