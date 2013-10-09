@@ -10,25 +10,24 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
-
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 
 
-public class Encryptor {
+public class Coder {
 
 	public String algorithm = "HmacMD5";
 	private SecretKeySpec secretkey = null;
 	private File root = null;
 	private String cipherFile = ".cipherIndex.txt";
 	private String indexFile = ".fileIndex.txt";
+	private HashSet<File> exceptions;
 	
-	public Encryptor(String exceptions, File root, String password) {
+	public Coder(HashSet<File> exceptions, File root, String password) {
+		this.exceptions = exceptions;
 		this.root = root;
-		System.out.println(root.getAbsolutePath());
+		//System.out.println(root.getAbsolutePath());
 		this.createKeyFromString(password);	
 
 	}
@@ -37,12 +36,11 @@ public class Encryptor {
 		byte[] keydata;
 		try {
 			keydata = password.getBytes("UTF-8");
-			secretkey = new SecretKeySpec(keydata, this.algorithm);
+			this.secretkey = new SecretKeySpec(keydata, this.algorithm);
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("Problem with encoding!");
 			e.printStackTrace();
 		}
-		//secretkey = new SecretKeySpec(keydata, "HmacMD5");
 	}
 	
 	public void index() {
@@ -56,7 +54,9 @@ public class Encryptor {
 		PrintWriter indexout = null , cipherout = null;
 		
 		try {
-			File indexFile = new File(dir, this.cipherFile);
+			File indexFile = new File(dir.getAbsolutePath() + File.separator + this.cipherFile);
+			System.out.println(indexFile.getAbsolutePath());
+			indexFile.createNewFile();
 			cipherout = new PrintWriter(new FileWriter(indexFile));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -64,7 +64,9 @@ public class Encryptor {
 		}
 		
 		try {
-			File indexFile = new File(dir, this.indexFile);
+			File indexFile = new File(dir.getAbsolutePath() + File.separator + this.indexFile);
+			System.out.println(indexFile.getAbsolutePath());
+			indexFile.createNewFile();
 			indexout = new PrintWriter(new FileWriter(indexFile));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -73,12 +75,15 @@ public class Encryptor {
 		
 		
 		for (File file : children) {
-			if (file.isHidden()) {
+			if (exceptions.contains(file)) {
 				continue;
-			}else if (file.isDirectory()) {
+			} else if (file.isHidden()) {
+				continue;
+			} else if (file.isDirectory()) {
 				this.index(file);
+				continue;
 			}
-			byte[] ciphertext = this.encrypt(file);
+			String ciphertext = this.encrypt(file.getAbsoluteFile());
 			cipherout.println(ciphertext);
 			indexout.println(file.getName());
 		}
@@ -86,8 +91,9 @@ public class Encryptor {
 		indexout.close();
 	}
 	
-	private byte[] encrypt (File f) {		
+	private String encrypt (File f) {		
 		byte[] ciphertext = null;
+		String hex = null;
 		Mac hmac = null;
 		
 		try {
@@ -99,7 +105,6 @@ public class Encryptor {
 			hmac = Mac.getInstance(this.algorithm);
 			hmac.init(this.secretkey);
 			ciphertext = hmac.doFinal(data);
-			System.out.println("OldHash:" + ciphertext);
 		} catch (FileNotFoundException e) {
 			System.out.println("The File provided does not exist!");
 			e.printStackTrace();
@@ -113,20 +118,30 @@ public class Encryptor {
 			System.out.println("Error: The key provided is not valid!");
 			e.printStackTrace();
 		}
+
+		StringBuffer hash = new StringBuffer();
+		for (int i = 0; i < ciphertext.length; i++) {
+			hex = Integer.toHexString(0xFF & ciphertext[i]);
+			if (hex.length() == 1) {
+				hash.append('0');
+			}
+			hash.append(hex);
+		}
+		//System.out.println(hash.toString());
 		
-		return ciphertext;
+		return hash.toString();
 	}
 	
-	public void analyze() {
-		this.analyze(root);
+	public void analyse() {
+		this.analyse(root);
 	}
 	
 	//generates a String with the contents of the CipherFile in the directory dir
-	private void analyze(File dir) {
+	private void analyse(File dir) {
 		assert(dir.isDirectory());
 		HashSet<String> children = this.currentChildren(dir);
 		HashSet<String> previousChildren = this.previousChildren(dir);
-		HashSet<byte[]> previousCiphers = this.previousCiphers(dir);
+		HashSet<String> previousCiphers = this.previousCiphers(dir);
 		HashSet<String> modified, deleted, newFiles ;
 
 		deleted = new HashSet<String>(previousChildren);
@@ -139,11 +154,8 @@ public class Encryptor {
 		modified.retainAll(children);
 		modified = modifiedFiles (dir , modified , previousCiphers);
 		
-		System.out.println("Previous Children:");
-		System.out.println(previousChildren.toString());
-		
-		System.out.println("Current Children:");
-		System.out.println(children.toString());
+		System.out.println();
+		System.out.println("Changes in directory " + dir);
 		
 		System.out.println("Files deleted:");
 		System.out.println(deleted.toString());
@@ -156,7 +168,7 @@ public class Encryptor {
 		
 		for (File f : dir.listFiles()) {
 			if ( f.isDirectory()) {
-				this.analyze(f);
+				this.analyse(f);
 			}
 		}
 		
@@ -169,7 +181,9 @@ public class Encryptor {
 			HashSet<String> currentChildren  = new HashSet<String>();
 			
 			for (File file : children) {
-				if (file.isHidden()) {
+				if (this.exceptions.contains(file)) {
+					continue;
+				} else if (file.isHidden() || file.isDirectory()) {
 					continue;
 				}else {
 					currentChildren.add(file.getName());
@@ -193,12 +207,12 @@ public class Encryptor {
 	}
 	
 	//generates a String with the contents of the CipherFile in the directory dir
-	private HashSet<byte[]> previousCiphers (File dir) {
-		HashSet<byte[]> previousCiphers = new HashSet<byte[]>();
+	private HashSet<String> previousCiphers (File dir) {
+		HashSet<String> previousCiphers = new HashSet<String>();
 		String cipherContents = this.indexContents(dir , this.cipherFile);
 		
 		for ( String cipher : cipherContents.split("\n") ) {
-			previousCiphers.add(cipher.getBytes());
+			previousCiphers.add(cipher);
 		}
 		
 		return previousCiphers;
@@ -210,7 +224,7 @@ public class Encryptor {
 		String lines = "";
 		
 		try {
-			filename = dir.getCanonicalPath() + File.separator + index;
+			filename = dir.getAbsolutePath() + File.separator + index;
 			BufferedReader in = new BufferedReader(new FileReader(filename));
 			String line;
 			while((line = in.readLine()) != null) {
@@ -227,14 +241,14 @@ public class Encryptor {
 	}
 	
 	//checks whether the current ciphers are contained in the previous ciphers
-	private HashSet<String> modifiedFiles (File dir , HashSet<String> files , HashSet<byte[]> previousCiphers) {
+	private HashSet<String> modifiedFiles (File dir , HashSet<String> files , HashSet<String> previousCiphers) {
 		HashSet <String> modified = new HashSet<String>();
 		
 		for ( String s : files) {
 			File f = new File(dir.getAbsolutePath(),s);
-			byte[] hash = this.encrypt(f);
-			System.out.println("Current Hash:" + hash);
-			if (!previousCiphers.contains(hash.toString())) {
+			String digest = this.encrypt(f.getAbsoluteFile());
+			//System.out.println("Current Hash:" + digest);
+			if (!previousCiphers.contains(digest)) {
 				modified.add(s);
 			} 
 		}
