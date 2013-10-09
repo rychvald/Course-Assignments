@@ -28,6 +28,7 @@ public class Heimdall {
 		} catch(ArrayIndexOutOfBoundsException e) {
 			System.out.println("Wrong arguments!");
 			System.out.println(usage);
+			System.exit(0);
 		}
 		try {
 			exceptions = exceptions(args[2]);
@@ -46,7 +47,9 @@ public class Heimdall {
 		} else {
 			System.out.println("Wrong set of arguments!");
 			System.out.println(usage);
+			System.exit(0);
 		}
+		System.out.println();
 		System.out.println("finished!");
 	}
 	
