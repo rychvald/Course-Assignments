@@ -55,7 +55,7 @@ public class Coder {
 		
 		try {
 			File indexFile = new File(dir.getAbsolutePath() + File.separator + this.cipherFile);
-			System.out.println(indexFile.getAbsolutePath());
+			//System.out.println(indexFile.getAbsolutePath());
 			indexFile.createNewFile();
 			cipherout = new PrintWriter(new FileWriter(indexFile));
 		} catch (IOException e) {
@@ -65,7 +65,7 @@ public class Coder {
 		
 		try {
 			File indexFile = new File(dir.getAbsolutePath() + File.separator + this.indexFile);
-			System.out.println(indexFile.getAbsolutePath());
+			//System.out.println(indexFile.getAbsolutePath());
 			indexFile.createNewFile();
 			indexout = new PrintWriter(new FileWriter(indexFile));
 		} catch (IOException e) {
@@ -73,6 +73,7 @@ public class Coder {
 			e.printStackTrace();
 		}
 		
+		System.out.println("Indexing files in " + dir.getAbsolutePath());
 		
 		for (File file : children) {
 			if (exceptions.contains(file)) {
@@ -83,7 +84,7 @@ public class Coder {
 				this.index(file);
 				continue;
 			}
-			String ciphertext = this.encrypt(file.getAbsoluteFile());
+			String ciphertext = this.code(file.getAbsoluteFile());
 			cipherout.println(ciphertext);
 			indexout.println(file.getName());
 		}
@@ -91,7 +92,7 @@ public class Coder {
 		indexout.close();
 	}
 	
-	private String encrypt (File f) {		
+	private String code (File f) {		
 		byte[] ciphertext = null;
 		String hex = null;
 		Mac hmac = null;
@@ -246,7 +247,7 @@ public class Coder {
 		
 		for ( String s : files) {
 			File f = new File(dir.getAbsolutePath(),s);
-			String digest = this.encrypt(f.getAbsoluteFile());
+			String digest = this.code(f.getAbsoluteFile());
 			//System.out.println("Current Hash:" + digest);
 			if (!previousCiphers.contains(digest)) {
 				modified.add(s);

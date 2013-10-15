@@ -9,11 +9,12 @@ import java.util.HashSet;
 
 public class Heimdall {
 
+	private static String usage = "Usage: Heimdall (index|analyse) Directory [Exceptions]";
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		String mode = null,directory = null;
 		File root = null;
-		String usage = "Usage: Heimdall (index|analyse) Directory [Exceptions]";
 		HashSet<File> exceptions = new HashSet<File>();
 		
 		try {
@@ -25,6 +26,11 @@ public class Heimdall {
 		try {
 			directory = args[1];
 			root = new File(directory);
+			if (!root.exists()) {
+				System.out.println("Invalid directory!");
+				System.out.println(usage);
+				System.exit(0);
+			}
 		} catch(ArrayIndexOutOfBoundsException e) {
 			System.out.println("Wrong arguments!");
 			System.out.println(usage);
@@ -39,10 +45,10 @@ public class Heimdall {
 		
 		Coder encryptor = new Coder(exceptions, root, password);
 		if ( mode.equals("index")) {
-			System.out.println("Indexing directory " + root);
+			System.out.println("Indexing...");
 			encryptor.index();
 		} else if (mode.equals("analyse")) {
-			System.out.println("Analysing directory " + root);
+			System.out.println("Analysing...");
 			encryptor.analyse();
 		} else {
 			System.out.println("Wrong set of arguments!");
@@ -55,6 +61,13 @@ public class Heimdall {
 	
 	private static HashSet<File> exceptions(String exceptions) {
 		HashSet<File> returnSet = new HashSet<File>();
+		
+		File file = new File(exceptions);
+		if (!file.exists()) {
+			System.out.println("Invalid exceptions file!");
+			System.out.println(usage);
+			System.exit(0);
+		}
 				
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(exceptions));
