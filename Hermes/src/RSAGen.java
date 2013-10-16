@@ -11,7 +11,6 @@ public class RSAGen {
 	
 	public void init() {
 		Random random = new Random();
-		random.
 	}
 	
 	public Long getPublicKey() {
