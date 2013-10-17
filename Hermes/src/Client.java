@@ -56,7 +56,7 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void close() {
 		this.goOn = false;
 		try {
@@ -70,6 +70,7 @@ public class Client {
 		}
 	}
 	
+	//listens for inputs from the client ports
 	private void listenTo (Socket client) {
 		try {	
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -89,6 +90,7 @@ public class Client {
 		}
 	}
 	
+	//responsible for forwarding the request to the server application
 	private void request(String request) {
 		this.toServer.print(request);
 		this.toServer.flush();
