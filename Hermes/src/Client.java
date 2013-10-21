@@ -15,7 +15,7 @@ import java.nio.CharBuffer;
 public class Client {
 	
 	int listenerPort = 8080, maxConnections = 1 , senderPort = 20000;
-	String serverAddress = "localhost";
+	String serverAddress = "127.0.0.1";
 	ServerSocket listenerSocket = null;
 	Socket senderSocket = null;
 	boolean goOn = true;
@@ -26,6 +26,7 @@ public class Client {
 		try {
 			this.setUpSenderSocket();
 			this.listenerSocket = new ServerSocket(listenerPort , maxConnections , InetAddress.getLocalHost());
+			System.out.println("Created listener socket for client");
 			this.open();
 		} catch (UnknownHostException e) {
 			System.out.println("Unknown host when creating listenerSocket for Client");
@@ -83,6 +84,7 @@ public class Client {
 					lines = lines + "\n" + line;
 				}
 			}
+			System.out.println(lines);
 			this.request(lines);
 		} catch (IOException e) {
 			System.out.println("Failed listening to client!");
@@ -94,5 +96,32 @@ public class Client {
 	private void request(String request) {
 		this.toServer.print(request);
 		this.toServer.flush();
+	}
+}
+
+final class ClientThread extends Thread {
+	Socket client , server;
+	ClientThread ( Socket client , Socket server) {
+		this.client = client;
+		this.server = server;
+	}
+	public void run() {
+		try {
+			BufferedReader in = new BufferedReader ( new InputStreamReader(this.client.getInputStream()));
+			PrintWriter out = new PrintWriter ( new OutputStreamWriter (this.client.getOutputStream()));
+			
+			String lines = "" , line = null;
+			while((line = in.readLine()) != null) {
+				if (line.length() == 0) {
+					break;
+				} else {
+					lines = lines + "\n" + line;
+				}
+			}
+			System.out.println(lines);
+		} catch (IOException e) {
+			System.out.println("Failed listening to client!");
+			e.printStackTrace();
+		}
 	}
 }
