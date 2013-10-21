@@ -94,6 +94,5 @@ public class Client {
 	private void request(String request) {
 		this.toServer.print(request);
 		this.toServer.flush();
-		this.fromServer.read(null);
 	}
 }
