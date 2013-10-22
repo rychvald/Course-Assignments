@@ -14,10 +14,10 @@ import java.nio.CharBuffer;
 
 public class Client {
 	
-	int listenerPort = 8080, maxConnections = 1 , senderPort = 20000;
-	String serverAddress = "127.0.0.1";
-	ServerSocket listenerSocket = null;
-	Socket senderSocket = null;
+	int clientPort = 8080, maxConnections = 1 , serverPort = 20000;
+	String serverAddress = "127.0.0.1"; // address of the server application
+	ServerSocket clientSocket = null;
+	Socket serverSocket = null;
 	boolean goOn = true;
 	BufferedReader fromServer = null;
 	PrintWriter toServer = null;
@@ -25,7 +25,7 @@ public class Client {
 	public Client() {
 		try {
 			this.setUpSenderSocket();
-			this.listenerSocket = new ServerSocket(listenerPort , maxConnections , InetAddress.getLocalHost());
+			this.clientSocket = new ServerSocket(clientPort , maxConnections , InetAddress.getLocalHost());
 			System.out.println("Created listener socket for client");
 			this.open();
 		} catch (UnknownHostException e) {
@@ -38,10 +38,10 @@ public class Client {
 	}
 	
 	private void setUpSenderSocket() throws UnknownHostException, IOException {
-		this.senderSocket = new Socket(this.serverAddress , this.senderPort);
-		InputStream in = this.senderSocket.getInputStream();
+		this.serverSocket = new Socket(this.serverAddress , this.serverPort);
+		InputStream in = this.serverSocket.getInputStream();
 		this.fromServer = new BufferedReader(new InputStreamReader(in));
-		OutputStream out = this.senderSocket.getOutputStream();
+		OutputStream out = this.serverSocket.getOutputStream();
 		this.toServer = new PrintWriter(new OutputStreamWriter(out));
 	}
 	
@@ -49,7 +49,7 @@ public class Client {
 		assert this.goOn;
 		try {
 			while (goOn) {
-				Socket clientSocket = this.listenerSocket.accept();
+				Socket clientSocket = this.clientSocket.accept();
 				this.listenTo(clientSocket);
 			}
 		} catch (IOException e) {
@@ -61,10 +61,10 @@ public class Client {
 	public void close() {
 		this.goOn = false;
 		try {
-			this.listenerSocket.close();
+			this.clientSocket.close();
 			this.toServer.close();
 			this.fromServer.close();
-			this.senderSocket.close();
+			this.serverSocket.close();
 		} catch (IOException e) {
 			System.out.println("Failed to close listenerSocket for Client!");
 			e.printStackTrace();
