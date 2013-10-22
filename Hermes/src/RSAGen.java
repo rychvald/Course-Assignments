@@ -3,7 +3,7 @@ import java.util.Random;
 
 public class RSAGen {
 
-	private Long publicKey, privateKey;
+	private Long p , q , n , e , d;
 	
 	public RSAGen() {
 		
@@ -19,6 +19,14 @@ public class RSAGen {
 	
 	private Long generatePrime() {
 		return null;
+	}
+	
+	public static void encrypt() {
+		
+	}
+	
+	public static void decrypt() {
+		
 	}
 	
 }
