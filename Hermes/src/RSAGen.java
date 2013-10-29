@@ -11,7 +11,7 @@ public class RSAGen {
 	
 	public static void main(String[] args) {
 		RSAGen rsa = new RSAGen();
-		String text = "myText";
+		String text = "my";
 		System.out.println("p: " + rsa.p);
 		System.out.println("q: " + rsa.q);
 		System.out.println("n: " + rsa.n);
