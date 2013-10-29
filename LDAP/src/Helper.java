@@ -10,7 +10,7 @@ public class Helper {
 	DirContext dirContext;
 	
 	public Helper() {
-		this("edu.security" , "ldap://198.211.110.141:389/dc=edu,dc=security,ou=students");
+		this("edu.security" , "ldap://198.211.110.141:389/ou=students,dc=security,dc=edu");
 	}
 	
 	public Helper(String context , String server) {
@@ -32,8 +32,14 @@ public class Helper {
 	public void list() {
 		try {
 			System.out.println(this.dirContext.getNameInNamespace());
+			Attributes a = this.dirContext.getAttributes("cn=John Doe");
+			NamingEnumeration<NameClassPair> e = this.dirContext.list("");
+			while (e.hasMore()) {
+				System.out.println(e.next().ge);
+			}
+			System.out.println(a.toString());
 			//NamingEnumeration<String> nameEnum = this.dirContext.list("");
-			System.out.println(nameEnum.nextElement());
+			//System.out.println(nameEnum.nextElement());
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
