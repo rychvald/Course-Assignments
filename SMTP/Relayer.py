@@ -9,7 +9,8 @@ class Relayer(smtpd.SMTPServer):
 		print 'Message addressed to  :', recipients
 		print 'Message length        :', len(data)
 		print 'Message content       :', data
-		self.send_message(mailfrom , recipients , data)
+		newData = self.filter_message(data)
+		self.send_message(mailfrom , recipients , newData)
 		return
 	
 	def send_message(self , mailfrom , recipients , data):
@@ -20,4 +21,12 @@ class Relayer(smtpd.SMTPServer):
 			server.sendmail(mailfrom , recipients , data)
 		finally:
 			server.quit()
-		return		
+		return	
+
+	def add_filter(self , filters):
+		self.filters = filters
+		return
+
+	def filter_message(self , message):
+		
+		return message
