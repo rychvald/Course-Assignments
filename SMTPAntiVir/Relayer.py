@@ -3,6 +3,7 @@ import smtpd
 import smtplib
 import getpass
 import pyclamd
+import os
 
 class Relayer(smtpd.SMTPServer):
 	def process_message(self , peer , mailfrom , recipients, data):
@@ -11,9 +12,7 @@ class Relayer(smtpd.SMTPServer):
 		print 'Message addressed to  :', recipients
 		print 'Message length        :', len(data)
 		print 'Message content       :', data
-		print self.dropfilter(data)
-		#if self.dropfilter(data)!=-1: return
-		newData = self.textfilter(data)
+		newData = self.virusfilter(data , mailfrom , recipients)
 		self.send_message(mailfrom , recipients , newData)
 		return
 	
@@ -28,26 +27,18 @@ class Relayer(smtpd.SMTPServer):
 			server.quit()
 		return	
 
-	def add_textfilter(self , filters):
-		self.filters = filters
-		return
-	def add_dropfilter(self , filters):
-		self.dropfilters = filters
-		return
-
 	def add_virusfilter(self):
 		self.cd = pyclamd.ClamdUnixSocket()
 		self.cd.reload()
+		return
 
-	def textfilter(self , message):
-		for textfilter in self.filters:
-			message=message.replace(textfilter , '')
-		return message
-
-	def dropfilter(self , message):
-		for dropfilter in self.dropfilters:
-			retVal=message.find(dropfilter)
-		return retVal
-
-	def virusfilter(self  , message):
+	def virusfilter(self  , message , mailfrom , recipients):
+		print self.cd.version()
+		print message
+		msg = self.cd.scan_stream(message)
+		print msg
+		if msg is None: return message
+		text = message.split("\n\n")
+		print message
+		message = text[0]+"\n\nVirus found in message! Content deleted. Virus found: "+msg.get('stream')[1]
 		return message
