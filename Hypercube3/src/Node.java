@@ -13,25 +13,16 @@ public class Node {
 		Node destination = new Node(thirddigit , seconddigit , firstdigit);
 		System.out.println("Packet with destination " + destination.toString() + " reached " + this.toString());
 		Node nextNode = null;
-		if(!firstdigit.equals(this.firstdigit)) {
-			if(firstdigit < this.firstdigit) 
-				nextNode = new Node(this.thirddigit , this.seconddigit , (this.firstdigit-1));
-			else if(firstdigit > this.firstdigit)
-				nextNode = new Node(this.thirddigit , this.seconddigit , (this.firstdigit+1));
+		if(!firstdigit.equals(this.firstdigit)) { 
+			nextNode = new Node(this.thirddigit , this.seconddigit , firstdigit);
 			System.out.println("Packet with destination " + destination.toString() + " sent to " + nextNode.toString());
 			nextNode.sendPacketTo(thirddigit , seconddigit , firstdigit);
 		} else if(!seconddigit.equals(this.seconddigit)) {
-			if(seconddigit < this.seconddigit) 
-				nextNode = new Node(this.thirddigit , (this.seconddigit-1) , this.firstdigit);
-			else if(seconddigit > this.seconddigit)
-				nextNode = new Node(this.thirddigit , (this.seconddigit+1) , this.firstdigit);
+			nextNode = new Node(this.thirddigit , seconddigit , this.firstdigit);
 			System.out.println("Packet with destination " + destination.toString() + " sent to " + nextNode.toString());
 			nextNode.sendPacketTo(thirddigit , seconddigit , firstdigit);
 		} else if(!thirddigit.equals(this.thirddigit)) {
-			if(thirddigit < this.thirddigit) 
-				nextNode = new Node((this.thirddigit-1) , this.seconddigit , this.firstdigit);
-			else if(thirddigit > this.thirddigit)
-				nextNode = new Node((this.thirddigit+1) , this.seconddigit , this.firstdigit);
+			nextNode = new Node(thirddigit , this.seconddigit , this.firstdigit);
 			System.out.println("Packet with destination " + destination.toString() + " sent to " + nextNode.toString());
 			nextNode.sendPacketTo(thirddigit , seconddigit , firstdigit);
 		} else {
