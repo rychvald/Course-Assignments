@@ -1,0 +1,114 @@
+
+
+/* Wallpaper
+---------------------------------------------------------*/
+
+$(document).ready(function() {
+
+
+if (typeof topbanner != "undefined") {
+	$("#adtopBanner").css("margin-right", (topbanner) + "px");
+}
+
+if (typeof skyWallpaperBgColor != "undefined") {
+	$("body").css("background-color", "" + (skyWallpaperBgColor) + ""); 
+	$("#mainWrapper").css("background-color", "" + (skyWallpaperBgColor) + ""); 
+	$("#adtopBanner").css("background-color", "" + (skyWallpaperBgColor) + ""); 
+	$("#mainLeftWrapper").css("padding", "0 0.571em"); 
+	$("#adtopBanner").css("margin-top", "-1px"); 
+	$("#adtopBanner").css("height", "118px"); 
+}	
+
+
+if (typeof skyWallpaperBgImg != "undefined") {
+	$("body").css("background-image", "" + (skyWallpaperBgImg) + "");
+	$("body").css("background-repeat","repeat-x");
+	$("body").css("position","relative");
+}
+
+
+
+if (typeof stickyOn != "undefined") {
+	$("#sidebarSky").css("margin-top","0px");
+}
+else {
+	stickySky();
+}
+
+
+});
+
+
+
+/* StickySky
+---------------------------------------------------------*/
+
+
+jQuery.easing['jswing'] = jQuery.easing['swing'];
+
+jQuery.extend( jQuery.easing,
+{
+def: 'easeOutQuad',
+	swing: function (x, t, b, c, d) {
+		//alert(jQuery.easing.default);
+		return jQuery.easing[jQuery.easing.def](x, t, b, c, d);
+	},
+	easeInQuad: function (x, t, b, c, d) {
+		return c*(t/=d)*t + b;
+	},
+	easeOutQuad: function (x, t, b, c, d) {
+		return -c *(t/=d)*(t-2) + b;
+	}
+});
+
+function fixedStickySky() {
+	var stickyAd = $("#sidebarSky");
+	var bannerTopHeight = 0;
+	var bannerTop = $("#adtopBanner");
+	var scrollTop = 0;
+	if(bannerTop) {
+		bannerTopHeight = bannerTop.height();
+	}
+	scrollTop = $(window).scrollTop();
+	stickyAd.css("margin-top", bannerTopHeight + scrollTop);
+}
+
+function stickySky() {
+	
+	var dsoctop=0;
+	var skySpeed=1;
+	var skyTimeout=100;
+	var lastY=0;
+	var adtopBanner = 0;
+	
+	if(document.getElementById("adtopBanner")){
+		var adtopBanner = document.getElementById("adtopBanner").offsetHeight; 
+	}
+	
+	var iebody=(document.compatMode && document.compatMode != "BackCompat")? document.documentElement : document.body;
+	var dsoctop=document.all? iebody.scrollTop : pageYOffset;
+
+	if (dsoctop <= adtopBanner) {
+		var marginY = adtopBanner;
+	}
+	else {
+		var marginY=dsoctop;
+	}
+	var	winStringY = marginY.toString()+"px";
+	var	distanceY = Math.abs(dsoctop-lastY);
+	var	stickySpeed = skySpeed*distanceY;
+	
+		$("#sidebarSky").stop().animate({"margin-top": winStringY}, stickySpeed, 'easeOutQuad',function() {
+    		// Animation complete.
+  		})
+		$("#sidebarSkyLeft").stop().animate({"margin-top": winStringY}, stickySpeed, 'easeOutQuad',function() {
+    		// Animation complete.
+  		})
+	
+	lastY = dsoctop;
+	var skyNext = stickySpeed+skyTimeout;
+
+	setTimeout ("stickySky()", skyNext);
+
+}
+

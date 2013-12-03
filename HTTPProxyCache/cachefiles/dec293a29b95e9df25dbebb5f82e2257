@@ -1,0 +1,1608 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:output indent="yes" method="html"/><xsl:variable name="_l_from" select="'Englisch'"/><xsl:param name="_from" select="'en'"/><xsl:variable name="_l_to" select="'Deutsch'"/><xsl:param name="_to" select="'de'"/><xsl:param name="mode" select="''"/><xsl:param name="side" select="1"/><xsl:param name="jsObject" select="''"/><xsl:param name="search" select="0"/><xsl:param name="ajax" select="1"/><xsl:param name="value" select="''"/><xsl:param name="delete" select="0"/><xsl:param name="debug" select="1"/><xsl:param name="jsDebug" select="0"/><xsl:param name="cssDebug" select="0"/><xsl:param name="translate" select="0"/><xsl:param name="__max" select="8"/><xsl:param name="__add" select="4"/><xsl:decimal-format name="en" decimal-separator="." grouping-separator=","/><xsl:variable name="numberFormat">#,###.00</xsl:variable><xsl:strip-space elements="*"/><xsl:preserve-space elements="repr i small b sup small"/><xsl:variable name="browserEngine" select="unknown"/><xsl:variable name="servername">dict.leo.org</xsl:variable><xsl:template match="info">
+				<xsl:if test="@leorendertarget=1">
+					<xsl:apply-templates select="." mode="index"/>
+				</xsl:if>
+				<xsl:if test="not(@leorendertarget=1)">
+					<xsl:if test="$mode='tab' or $mode='tab-expand' or $mode='tab-content' or $mode='preview' or $mode='preview-expand' or $mode='preview-content' or $mode='plot' or $mode='plot-expand' or $mode='plot-content' or $mode='treeview' or $mode='treeview-content' or $mode='tree' or $mode='treeview-expand' or $mode='tree-content' or $mode='select' or $mode='folder' or $mode='folder-content' or $mode='folder-expand' or $mode='select-content' or $mode='view' or $mode='edit' or $mode='inputAppend' or $mode='edit-content' or $mode='search_select' or $mode='search_checkbox' or $mode='listview' or $mode='listview-expand' or $mode='listview-content'  or $mode='removelist-content'  or $mode='drilling-expand' or $mode='addlist-content' or $mode='drilling' or $mode='drilling-content' or $mode='simple' or $mode='checkboxlist' or $mode='checkboxlist-content' or $mode='multiselect' or $mode='multiselect-content' ">
+						
+						<xsl:apply-templates select="//*[@leorendertarget=1]"/>
+					</xsl:if>
+					<xsl:if test="not($mode='tab' or $mode='tab-expand' or $mode='tab-content' or $mode='preview' or $mode='preview-expand' or $mode='preview-content' or $mode='plot' or $mode='plot-expand' or $mode='plot-content' or $mode='treeview' or $mode='treeview-content' or $mode='tree' or $mode='treeview-expand' or $mode='tree-content' or $mode='select' or $mode='folder' or $mode='folder-content' or $mode='select-content' or $mode='inputAppend' or $mode='view' or $mode='edit-content' or $mode='search_select' or $mode='search_checkbox'  or $mode='listview-expand' or $mode='listview' or $mode='listview-content'  or $mode='drilling'  or $mode='drilling-expand' or $mode='drilling-content' or $mode='edit' or $mode='simple' or $mode='checkboxlist' or $mode='checkboxlist-content' or $mode='multiselect' or $mode='multiselect-content' )">
+						
+						<xsl:apply-templates select="//*[@leorendertarget='1']" mode="index"/>
+					</xsl:if>
+				</xsl:if>
+			</xsl:template><xsl:template match="baseform" mode="result">
+		<xsl:if test="./side/baselist/base">
+			<div class="section" id="base">
+				<table>
+					<xsl:call-template name="section-colgroup-twocols"/>
+					<thead>
+						<tr>
+							<th colspan="2">
+								<xsl:text>Mögliche Grundformen</xsl:text>
+								<xsl:if test="not(./side/baselist[@index='1'])">
+									<xsl:text> </xsl:text>
+									<xsl:text>für das Wort</xsl:text>
+									<xsl:text> "</xsl:text><xsl:value-of select="./side/baselist/@word"/><xsl:text>"</xsl:text>
+									
+								</xsl:if>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<xsl:variable name="baselistB" select="./side[position()='2']/baselist"/>
+						
+						<xsl:for-each select="./side[position() = '1']/baselist/base">
+							<tr>
+								<xsl:variable name="pos" select="position()"/>
+								<td class="text">
+									<xsl:call-template name="word">
+										<xsl:with-param name="wordValue" select="."/>
+									</xsl:call-template>
+								</td>
+
+								
+
+								<td class="text">
+									<xsl:call-template name="word">
+										<xsl:with-param name="wordValue" select="$baselistB/base[position() = $pos]"/>
+									</xsl:call-template>
+								</td>
+							</tr>
+						</xsl:for-each>
+
+						
+						<xsl:variable name="sizeA" select="count(./side[position() = '1']/baselist/base)"/>
+						<xsl:for-each select="./side[position() = '2']/baselist/base">
+							<xsl:if test="position() &gt; $sizeA">
+								<tr>
+									<td> </td>
+									<td class="text">
+										<xsl:call-template name="word">
+											<xsl:with-param name="wordValue" select="."/>
+										</xsl:call-template>
+									</td>
+								</tr>
+							</xsl:if>
+						</xsl:for-each>
+					</tbody>
+				</table>
+			</div>
+		</xsl:if>
+	</xsl:template><xsl:template match="dictQueryError">
+		<xsl:choose>
+			<xsl:when test="./@errorType = 'clientPoolRate'">
+				<xsl:call-template name="rateExceeded"/>
+				<p>
+					IP:<xsl:text> </xsl:text><xsl:value-of select="./login/@ipaddress"/><br/>
+					<xsl:apply-templates select="./short"/>
+					<xsl:apply-templates select="./medium"/>
+					<xsl:apply-templates select="./long"/>
+				</p>
+			</xsl:when>
+			<xsl:when test="./@errorType = 'clientRate'">
+				<xsl:call-template name="rateExceeded"/>
+				<p>
+					IP:<xsl:text> </xsl:text><xsl:value-of select="./login/@ipaddress"/><br/>
+					<xsl:apply-templates select="./short"/>
+					<xsl:apply-templates select="./long"/>
+				</p>
+			</xsl:when>
+			<xsl:otherwise>
+				<p>
+					<xsl:text>Bei der Anfrage kam es zu einem unbekannten Fehler, das tut uns leid. Sollte sich der Fehler wiederholen, schreiben Sie bitte eine</xsl:text>
+					<xsl:text> </xsl:text>
+					<a href="mailto:dict@leo.org">
+						<xsl:text>E-Mail an das LEO-Team</xsl:text>
+					</a>
+					<xsl:text> </xsl:text>
+					<xsl:text>mit folgendem Inhalt:</xsl:text>
+				</p>
+				<p>
+					<xsl:copy-of select="./message/*"/>
+				</p>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template><xsl:template match="short">
+		<div>
+			<xsl:if test="./@rate &gt; ./@limit">
+				<xsl:attribute name="style">color: red;</xsl:attribute>
+			</xsl:if>
+			Short Limit: <xsl:value-of select="./@limit"/>, Short Rate: <xsl:value-of select="./@rate"/>
+		</div> 
+	</xsl:template><xsl:template match="medium">
+		<div>
+			<xsl:if test="./@rate &gt; ./@limit">
+				<xsl:attribute name="style">color: red;</xsl:attribute>
+			</xsl:if>
+			Medium Limit: <xsl:value-of select="./@limit"/>, Medium Rate: <xsl:value-of select="./@rate"/>
+		</div> 
+	</xsl:template><xsl:template match="long">
+		<div>
+			<xsl:if test="./@rate &gt; ./@limit">
+				<xsl:attribute name="style">color: red;</xsl:attribute>
+			</xsl:if>
+			Long Limit: <xsl:value-of select="./@limit"/>, Long Rate: <xsl:value-of select="./@rate"/>
+		</div> 
+	</xsl:template><xsl:template name="rateExceeded">
+		<p>
+			<xsl:text>Wir haben eine sehr hohe Anzahl an Anfragen von Ihrem Internet-Anschluss aus registriert. Um unsere Wortschätze vor einem unberechtigtem Zugriff zu schützen, wurde Ihre IP-Adresse daher vorläufig gesperrt. Die Sperre endet automatisch.</xsl:text>
+		</p>
+		<p>
+			<xsl:text>Sie können eine Erhöhung der maximalen Anfragen beantragen (z.B. wenn Sie aus einer Firma heraus die Anfragen stellen). Schreiben Sie dazu bitte eine</xsl:text>
+			<xsl:text> </xsl:text>
+			<a href="mailto:dict@leo.org">
+				<xsl:text>E-Mail an das LEO-Team</xsl:text>
+			</a>
+			<xsl:text> </xsl:text>
+			<xsl:text>mit einer kurzen Begründung für die Erhöhung und folgendem Inhalt:</xsl:text>
+		</p>
+	</xsl:template><xsl:template name="addInfo">
+		<xsl:param name="uid"/>
+		<xsl:param name="dynamic"/>
+		<span class="sp spdict s_2924637882 " title=""><xsl:if xmlns:xsl="http://www.w3.org/1999/XSL/Transform" test="$dynamic = 1">
+				<xsl:attribute name="onclick">dict.loadInfo(<xsl:value-of select="$uid"/>, event);</xsl:attribute>
+			</xsl:if><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Mehr Informationen</xsl:text></xsl:attribute> </span>
+	</xsl:template><xsl:template name="flectiontable">
+		<xsl:param name="flecttab"/>
+		<xsl:param name="dynamic"/>
+		<span class="sp spdict s_2558022912 " title="F"><xsl:if xmlns:xsl="http://www.w3.org/1999/XSL/Transform" test="$dynamic = 1">
+				<xsl:attribute name="onclick">dict.loadFlect("<xsl:value-of select="$flecttab/@url"/>", event);</xsl:attribute>
+			</xsl:if><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title">
+				<xsl:choose>
+					<xsl:when test="$flecttab/@stemType = 'verb'">
+						<xsl:text>Verbtabelle öffnen</xsl:text>
+					</xsl:when>
+					<xsl:when test="$flecttab/@stemType = 'noun'">
+						<xsl:text>Nomentabelle öffnen</xsl:text>
+					</xsl:when>
+					<xsl:when test="$flecttab/@stemType = 'adj'">
+						<xsl:text>Adjektivtabelle öffnen</xsl:text>
+					</xsl:when>
+				</xsl:choose>
+			</xsl:attribute> </span>
+	</xsl:template><xsl:template match="entry" mode="table-row-info-common">
+		<td>
+			<xsl:if test="@usr">
+				<span class="sp spdict s_2576326102 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">dict.showUserInfo(<xsl:value-of select="@usr"/>, event);</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Details zum Benutzer</xsl:text></xsl:attribute> </span>
+			</xsl:if>
+			<xsl:if test="not(@usr)">
+				<xsl:choose>
+					<xsl:when test="/*/@dictQueryXSLT = 1">
+						<a>
+							<xsl:attribute name="href">
+								<xsl:text>/dict/addInfo.php?uid=</xsl:text>
+								<xsl:value-of select="@uid"/>
+								
+								<xsl:text>&amp;lp=</xsl:text>
+								<xsl:value-of select="/*/@lp"/>
+								<xsl:text>&amp;lang=</xsl:text>
+								<xsl:value-of select="/*/@lang"/>
+							</xsl:attribute>
+							<xsl:call-template name="addInfo">
+								<xsl:with-param name="uid" select="@uid"/>
+								<xsl:with-param name="dynamic" select="0"/>
+							</xsl:call-template>
+						</a>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="addInfo">
+							<xsl:with-param name="uid" select="@uid"/>
+							<xsl:with-param name="dynamic" select="1"/>
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:if>
+		</td>
+	</xsl:template><xsl:template match="side" mode="table-row-info">
+		<xsl:param name="class"/>
+		
+		<xsl:variable name="lang" select="@lang"/>
+		<xsl:variable name="ibox" select="ibox"/>
+		<xsl:variable name="flecttab" select="$ibox/flecttab"/>
+		
+		<td class="{$class}">
+			<xsl:if test="$flecttab">
+				<xsl:choose>
+					<xsl:when test="/*/@dictQueryXSLT = 1">
+						<a>
+							<xsl:attribute name="href">
+								<xsl:text>/dict/flectionTable.php</xsl:text>
+								<xsl:value-of select="$flecttab/@url"/>
+								
+								<xsl:text>&amp;lp=</xsl:text>
+								<xsl:value-of select="/*/@lp"/>
+								<xsl:text>&amp;lang=</xsl:text>
+								<xsl:value-of select="/*/@lang"/>
+							</xsl:attribute>
+							<xsl:call-template name="flectiontable">
+								<xsl:with-param name="flecttab" select="$flecttab"/>
+								<xsl:with-param name="dynamic" select="0"/>
+							</xsl:call-template>
+						</a>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="flectiontable">
+							<xsl:with-param name="flecttab" select="$flecttab"/>
+							<xsl:with-param name="dynamic" select="1"/>
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:if>
+		</td>
+		<td class="{$class}">
+			<xsl:if test="$ibox/pron">
+				<span class="sp spdict s_121139705 " title="P"><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">
+						cancelEvent(event);
+						Leo.dict.playLeo('<xsl:value-of select="$ibox/pron/@url"/>');
+					</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Aussprache anhören</xsl:text></xsl:attribute> </span>
+			</xsl:if>
+			<xsl:if test="$ibox/linguatec">
+				<span class="sp spdict s_121139705 " title=""><xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="word" select="words/word[1]"/><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="data-dz-param1">
+						<xsl:choose>
+							<xsl:when test="$lang='ch'">
+								<xsl:value-of select="$word/cc/cs"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of select="$word"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">
+						cancelEvent(event);
+						Dz.callFromDom(this, function(p) {
+							Leo.dict.playLtec(p.trim(), '<xsl:value-of select="$lang"/>');
+						});
+					</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Aussprache anhören</xsl:text></xsl:attribute> </span>
+			</xsl:if>
+		</td>
+	</xsl:template><xsl:template match="side" mode="table-row-lion">
+		<xsl:param name="position"/>
+		<xsl:variable name="lang" select="@lang"/>
+		<td>
+			<img width="16" height="16">
+				<xsl:attribute name="src">
+					<xsl:text>/img/16x16/lion-use-</xsl:text>
+					<xsl:value-of select="$position"/>
+					<xsl:text>-entry.png</xsl:text>
+				</xsl:attribute>
+				<xsl:attribute name="data-dz-param1">
+					<xsl:choose>
+						<xsl:when test="$lang='ch'">
+							<xsl:value-of select="words/word[1]/cc/cs"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="words/word[1]"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:attribute>
+				<xsl:attribute name="onclick">
+					cancelEvent(event);
+					Dz.callFromDom(this, function (p) {
+						Leo.dict.lion(p);
+					});
+				</xsl:attribute>
+				<xsl:attribute name="title"><xsl:text>Mit Lion übernehmen</xsl:text></xsl:attribute>
+			</img>
+		</td>
+	</xsl:template><xsl:template match="entry" mode="info-common">
+		<xsl:param name="size"/>
+		<xsl:if test="@usr">
+			<span class="sp spdict s_2544744819 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">dict.showUserInfo(<xsl:value-of select="@usr"/>, event);</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Details zum Benutzer</xsl:text></xsl:attribute> </span>
+		</xsl:if>
+		<xsl:if test="./side[position() = 1]/ibox/@ajaxid">
+			<span class="sp spdict s_2691713567 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">dict.loadInfo(<xsl:value-of select="@uid"/>, event, '<xsl:value-of select="./side[position() = 1]/ibox/@ajaxid"/>');</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Mehr Informationen</xsl:text></xsl:attribute> </span>
+		</xsl:if>
+	</xsl:template><xsl:template match="entry" mode="info">
+		<xsl:param name="size"/>
+		<xsl:param name="lang"/>
+
+		<xsl:if test="side[@lang=$lang]/ibox/flecttab">
+			
+			<span class="sp spdict s_2522509733 " title="t"><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">dict.loadFlect("<xsl:value-of select="side[@lang=$lang]/ibox/flecttab/@url"/>", event);</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title">
+					<xsl:if test="side[@lang=$lang]/ibox/flecttab/@stemType = 'adj'">
+						<xsl:text>Adjektivtabelle öffnen</xsl:text>
+					</xsl:if>
+					<xsl:if test="side[@lang=$lang]/ibox/flecttab/@stemType = 'noun'">
+						<xsl:text>Nomentabelle öffnen</xsl:text>
+					</xsl:if>
+					<xsl:if test="side[@lang=$lang]/ibox/flecttab/@stemType = 'verb'">
+						<xsl:text>Verbtabelle öffnen</xsl:text>
+					</xsl:if>
+				</xsl:attribute> </span>
+		</xsl:if>
+		<xsl:if test="side[@lang=$lang]/ibox/pron">
+
+			<xsl:if test="side[@lang=$lang]/ibox/pron">
+				<span class="sp spdict s_152720732 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">
+						cancelEvent(event);
+						Leo.dict.playLeo('<xsl:value-of select="side[@lang=$lang]/ibox/pron/@url"/>');
+					</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Aussprache anhören</xsl:text></xsl:attribute> </span>
+			</xsl:if>
+			<xsl:if test="side[@lang=$lang]/ibox/linguatec">
+				<span class="sp spdict s_152720732 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="data-dz-param1">
+						<xsl:choose>
+							<xsl:when test="$lang='ch'">
+								<xsl:value-of select="side[@lang=$lang]/words/word/cc/cs"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of select="side[@lang=$lang]/words/word"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">
+						cancelEvent(event)
+						Dz.callFromDom(this, function(p) {
+							Leo.dict.playLtec(p.trim(), '<xsl:value-of select="$lang"/>');
+						});
+					</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Aussprache anhören</xsl:text></xsl:attribute> </span>
+			</xsl:if>
+		</xsl:if>
+	</xsl:template><xsl:template match="entry" mode="table-row">
+		<tr>
+			
+			
+			
+			<td>
+				<xsl:choose>
+					<xsl:when test="/*/@insertLine='on'">
+						<span class="sp spdict s_990174308 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">cancelEvent(event); Leo.Dict.showExtendedInfo('<xsl:value-of select="@uid"/>');</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Detailinformationen</xsl:text></xsl:attribute> </span>
+					</xsl:when>
+					<xsl:otherwise>
+						<span class="sp spdict s_1076685769 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick">dict.save('<xsl:value-of select="@uid"/>', event);</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Speichern im Trainer</xsl:text></xsl:attribute> </span>
+					</xsl:otherwise>
+				</xsl:choose>
+			</td>
+			<xsl:apply-templates select="." mode="table-row-info-common"/>
+
+			
+			<xsl:apply-templates select="./side[1]" mode="table-row-info"/>
+			<xsl:if test="/*/@lion">
+				<xsl:apply-templates select="./side[1]" mode="table-row-lion">
+					<xsl:with-param name="position">left</xsl:with-param>
+				</xsl:apply-templates>
+			</xsl:if>
+			<td class="text">
+				<xsl:attribute name="lang"><xsl:value-of select="./side[position()='1']/@lang"/></xsl:attribute>
+				<xsl:apply-templates select="side[position()='1']/repr" mode="repr"/>
+			</td>
+			
+			
+			<xsl:apply-templates select="./side[2]" mode="table-row-info"/>
+			<td class="text">
+				<xsl:attribute name="lang"><xsl:value-of select="./side[position()='2']/@lang"/></xsl:attribute>
+				<xsl:apply-templates select="side[position()='2']/repr" mode="repr"/>
+			</td>
+			<xsl:if test="/*/@lion">
+				<xsl:apply-templates select="./side[2]" mode="table-row-lion">
+					<xsl:with-param name="position">right</xsl:with-param>
+				</xsl:apply-templates>
+			</xsl:if>
+		</tr>
+	</xsl:template><xsl:template match="entry" mode="listview-list-item">
+		<li>
+			<xsl:attribute name="class"><xsl:value-of select="info/realmgroup/@type"/></xsl:attribute>
+			<xsl:if test="@userid or string-length(@uid) &gt; 12">
+				<xsl:attribute name="class"><xsl:value-of select="info/realmgroup/@type"/> user</xsl:attribute>
+			</xsl:if>
+			
+			<xsl:apply-templates select="." mode="line"/>
+		</li>
+	</xsl:template><xsl:template match="entry" mode="line">
+		
+		<span class="text">
+			<span><xsl:apply-templates select="side[position()='1']/repr" mode="repr"/></span>
+		</span>
+
+		
+		<span class="text">
+			<span><xsl:apply-templates select="side[position()='2']/repr" mode="repr"/></span>
+		</span>
+	</xsl:template><xsl:template match="entry" mode="two-lines">
+		
+		<span class="text">
+			<span><xsl:apply-templates select="side[position()='1']/repr" mode="repr"/></span>
+		</span>
+		<br/>
+		
+		<span class="text">
+			<span><xsl:apply-templates select="side[position()='2']/repr" mode="repr"/></span>
+		</span>
+	</xsl:template><xsl:template match="entry" mode="votd">
+		
+		<div class="votd">
+			<span><xsl:apply-templates select="side[position()='1']/words/word[position() = 1]" mode="repr"/></span>
+		</div>
+		
+		<div class="votd">
+			<span><xsl:apply-templates select="side[position()='2']/words/word[position() = 1]" mode="repr"/></span>
+		</div>
+	</xsl:template><xsl:template match="entry" mode="list">
+		<li><xsl:value-of select="side[position()=$side]/repr"/></li>
+	</xsl:template><xsl:template match="entry" mode="name">
+		<xsl:copy-of select="languagea"/> - <xsl:copy-of select="languageb"/>
+	</xsl:template><xsl:template match="entry" mode="preview-list-item">
+		<xsl:param name="jsObject"/>
+
+		<tr>
+			<td>
+				<xsl:attribute name="onclick"><xsl:apply-templates select="." mode="jsName"/>.edit();</xsl:attribute>
+				<xsl:copy-of select="languagea"/>
+				<xsl:copy-of select="side[@lang='en']/repr"/>
+			</td>
+			<td>
+				<xsl:attribute name="onclick"><xsl:apply-templates select="." mode="jsName"/>.edit();</xsl:attribute>
+				<xsl:copy-of select="languageb"/>
+				<xsl:copy-of select="side[@lang='de']/repr"/>
+			</td>
+			<td>
+				<xsl:if test="string(error)">
+					<xsl:value-of select="error"/>
+				</xsl:if>
+				
+			</td>
+			<td>
+				<span class="sp spdict s_2769259262 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="onclick"><xsl:apply-templates select="." mode="jsName"/>.remove();</xsl:attribute><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Subject</xsl:text></xsl:attribute> </span>
+			</td>
+		</tr>
+	</xsl:template><xsl:template match="ffsynlist" mode="breadcrumb">
+		<xsl:if test="side/word">
+			<a onclick="$(document).scrollTo('#ffsyn', 150);">
+				<xsl:text>Suchumfeld</xsl:text>
+			</a>
+			<span>::</span>
+		</xsl:if>
+	</xsl:template><xsl:template match="ffsynlist" mode="section">
+		<xsl:if test="side/word">
+			<div class="section" id="ffsyn">
+				<table>
+					<xsl:call-template name="section-colgroup-twocols"/>
+					<thead>
+						<tr>
+							<th colspan="2">
+								<xsl:text>Aus dem Umfeld der Suche</xsl:text>
+							</th>
+						</tr>
+					</thead>
+					<xsl:apply-templates select="." mode="entries"/>
+				</table>
+			</div>
+		</xsl:if>
+	</xsl:template><xsl:template match="forum" mode="section"/><xsl:template match="forumRef" mode="breadcrumb">
+		<xsl:if test="./link">
+			<a onclick="$(document).scrollTo('#forumResults', 150);">
+				<xsl:text>Diskussionen</xsl:text>
+			</a>
+			<span>::</span>
+		</xsl:if>
+	</xsl:template><xsl:template match="forumRef" mode="section">
+		<div id="forumResults" class="section forumResults">
+			<div>
+				<xsl:if test="./link">
+					<xsl:apply-templates select="." mode="table-head"/>
+				</xsl:if>
+				<xsl:if test="not(./link)">
+					<table>
+						<thead>
+							<tr>
+								<th>
+									<xsl:text>Sorry, there are no forum discussions containing the word or phrase </xsl:text>
+									<i><xsl:value-of select="//search/@original"/></i>
+									<xsl:text>.</xsl:text>
+								</th>
+							</tr>
+						</thead>
+					</table>
+				</xsl:if>
+			</div>
+		</div>
+	</xsl:template><xsl:template match="forumRef" mode="table-head">
+		<xsl:param name="scope"/>
+		<table>
+			<colgroup>
+				<col style="width: 70%;"/>
+				<col style="width: 10%;"/>
+				<col style="width: 20%;"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th colspan="3">
+						<xsl:if test="not($scope = 'editorial')">
+							<xsl:text>Forum discussions containing the search term</xsl:text>
+						</xsl:if>
+						<xsl:if test="$scope = 'editorial'">
+							<xsl:text>Dieser Eintrag basiert auf:</xsl:text>
+						</xsl:if>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<xsl:apply-templates select="./link[position() &lt; 14]" mode="forumResult">
+					<xsl:with-param name="scope" select="$scope"/>
+				</xsl:apply-templates>
+			</tbody>
+		</table>
+	</xsl:template><xsl:template match="link" mode="forumResult">
+		<xsl:param name="scope"/>
+		<tr>
+			<td>
+				<a rel="nofollow">
+				<xsl:attribute name="href">
+					<xsl:value-of select="@href"/>
+					
+					<xsl:text>&amp;lang=</xsl:text>
+					<xsl:if test="not($scope = 'editorial')">
+						<xsl:value-of select="//search/@lang"/>
+					</xsl:if>
+					<xsl:if test="$scope = 'editorial'">
+						<xsl:value-of select="//additionalInfo/@lang"/>
+					</xsl:if>
+					<xsl:text>&amp;lp=</xsl:text>
+					<xsl:if test="not($scope = 'editorial')">
+						<xsl:value-of select="//search/@lp"/>
+					</xsl:if>
+					<xsl:if test="$scope = 'editorial'">
+						<xsl:value-of select="//additionalInfo/@lp"/>
+					</xsl:if>
+				</xsl:attribute>
+					<b>
+					<xsl:value-of select="./subject"/>
+					</b>
+					<xsl:if test="./@domain != ''">
+					<xsl:text> [</xsl:text>
+					<xsl:value-of select="./@domain"/>
+					<xsl:text>]</xsl:text>
+					</xsl:if>
+				</a>
+			</td>
+			<td class="secondarydata" style="text-align: right;" colspan="2">
+				<xsl:text>Last post</xsl:text>
+				<xsl:text> </xsl:text>
+				<xsl:variable name="ticks">
+				<xsl:call-template name="localtime">
+					<xsl:with-param name="ticks" select="./@lastChangeDate"/>
+				</xsl:call-template>
+				</xsl:variable>
+
+				<xsl:call-template name="timestamp">
+				<xsl:with-param name="format" select="'nice'"/>
+				<xsl:with-param name="ticks" select="$ticks"/>
+				</xsl:call-template>
+			</td>
+		</tr>
+		<tr>
+ 			<td colspan="2">
+				
+				<xsl:variable name="teaser" select="string(./teaser)"/>
+				<xsl:if test="string-length($teaser) &gt; 95">
+						<xsl:value-of select="substring($teaser,0,92)"/>
+						<xsl:text>...</xsl:text>
+				</xsl:if>
+				<xsl:if test="not(string-length($teaser) &gt; 95)">
+						<xsl:copy-of select="$teaser"/>
+				</xsl:if>
+			</td>
+			<td class="secondarydata" style="text-align:right;">
+				<xsl:variable name="followupCnt" select="string(./@followupCnt)"/>
+				<xsl:if test="not($followupCnt = '')">
+					<xsl:value-of select="$followupCnt"/>
+				</xsl:if>
+				<xsl:if test="$followupCnt = ''">
+					<xsl:text>0</xsl:text>
+				</xsl:if>
+				<xsl:text> </xsl:text>
+				<xsl:text>Posts</xsl:text>
+			</td>
+		</tr>
+	</xsl:template><xsl:template name="section-colgroup">
+		<xsl:if test="/*/@lion">
+			<colgroup>
+				<col style="width:20px"/>
+				<col style="width:24px"/>
+
+				<col style="width:28px"/>
+				<col style="width:20px"/>
+				<col style="width:20px"/>
+				<col style="width:auto"/>
+
+				<col style="width:20px"/>
+				<col style="width:20px"/>
+				<col style="width:auto"/>
+				<col style="width:20px"/>
+			</colgroup>
+		</xsl:if>
+		<xsl:if test="not(/*/@lion)">
+			<colgroup>
+				<col style="width:20px"/>
+				<col style="width:24px"/>
+
+				<col style="width:28px"/>
+				<col style="width:20px"/>
+				<col style="width:auto"/>
+
+				<col style="width:20px"/>
+				<col style="width:20px"/>
+				<col style="width:auto"/>
+			</colgroup>
+		</xsl:if>
+	</xsl:template><xsl:template name="section-colgroup-twocols">
+		<colgroup>
+			<col style="width:auto"/>
+			<col style="width:auto"/>
+		</colgroup>
+	</xsl:template><xsl:template match="section" mode="breadcrumb">
+		<a>
+			
+			<xsl:attribute name="onclick">$(document).scrollTo("#section-<xsl:value-of select="@sctName"/>", 150);</xsl:attribute>
+			<xsl:apply-templates select="." mode="shortname"/>
+		</a>
+		<span>::</span>
+	</xsl:template><xsl:template match="section" mode="name">
+		<xsl:if test="@sctName = 'subst'">
+			<xsl:text>Nouns</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'verb'">
+			<xsl:text>Verbs</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'adjadv'">
+			<xsl:text>Adjectives / Adverbs</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'praep'">
+			<xsl:text>Prepositions / Pronouns</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'definition'">
+			<xsl:text>Definitions</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'abbrev'">
+			<xsl:text>Abbreviations / Symbols</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'phrase'">
+			<xsl:text>Phrases / Collocations</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'example'">
+			<xsl:text>Examples</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'flect'">
+			<xsl:text>Inflected forms</xsl:text>
+		</xsl:if>
+	</xsl:template><xsl:template match="section" mode="shortname">
+		<xsl:if test="@sctName = 'subst'">
+			<xsl:text>Nouns</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'verb'">
+			<xsl:text>Verbs</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'adjadv'">
+			<xsl:text>Adjektive</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'praep'">
+			<xsl:text>Präpositionen</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'definition'">
+			<xsl:text>Definitions</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'abbrev'">
+			<xsl:text>Abbreviations / Symbols</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'phrase'">
+			<xsl:text>Phrases / Collocations</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'example'">
+			<xsl:text>Examples</xsl:text>
+		</xsl:if>
+		<xsl:if test="@sctName = 'flect'">
+			<xsl:text>Inflected forms</xsl:text>
+		</xsl:if>
+	</xsl:template><xsl:template match="section" mode="section">
+		<xsl:param name="includeIds" select="1"/>
+
+		<div class="section results">
+			<xsl:if test="$includeIds = 1">
+				<xsl:attribute name="id">section-<xsl:value-of select="@sctName"/></xsl:attribute>
+			</xsl:if>
+			<div>
+
+				<table>
+					<xsl:call-template name="section-colgroup"/>
+					<thead>
+						<tr>
+							<th>
+								<xsl:if test="/*/@lion">
+									<xsl:attribute name="colspan">10</xsl:attribute>
+								</xsl:if>
+								<xsl:if test="not(/*/@lion)">
+									<xsl:attribute name="colspan">8</xsl:attribute>
+								</xsl:if>
+								<xsl:if test="./minprio">
+									<xsl:attribute name="onclick">dict.toggleMoreEntries('<xsl:value-of select="@sctName"/>');</xsl:attribute>
+								</xsl:if>
+								<h2>
+									<xsl:apply-templates select="." mode="name"/>
+								</h2>
+							</th>
+						</tr>
+					</thead>
+					
+					<tbody>
+						<xsl:apply-templates select="./entry" mode="table-row"/>
+					</tbody>
+
+					
+					<xsl:if test="./minprio">
+						<tbody class="expand">
+							
+							<tr><td colspan="8" style="padding: 0; border: none;"><xsl:text> </xsl:text></td></tr>
+						</tbody>
+					</xsl:if>
+				</table>
+			</div>
+			<xsl:if test="./minprio">
+				
+				<h4 class="more">
+					<span class="js-hideMoreEntries" style="display: none;">
+						
+						<xsl:attribute name="onclick">dict.hideMoreEntries('<xsl:value-of select="@sctName"/>');</xsl:attribute>
+						<xsl:if test="@sctName = 'subst'">
+							<xsl:text>weitere Substantive verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'verb'">
+							<xsl:text>weitere Verben verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'adjadv'">
+							<xsl:text>weitere Adjektive / Adverbien verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'praep'">
+							<xsl:text>weitere Präpositionen verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'definition'">
+							<xsl:text>weitere Definitionen verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'abbrev'">
+							<xsl:text>weitere Abkürzungen verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'phrase'">
+							<xsl:text>weitere Phrase verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'example'">
+							<xsl:text>weitere Beispiele verbergen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'flect'">
+							<xsl:text>weitere Flexionen verbergen</xsl:text>
+						</xsl:if>
+						<span class="sp spdict s_3320116095 " title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Weitere Treffer verbergen</xsl:text></xsl:attribute> </span>
+					</span>
+					<span class="js-showMoreEntries">
+						
+						<xsl:attribute name="onclick">dict.showMoreEntries('<xsl:value-of select="@sctName"/>');</xsl:attribute>
+						<xsl:if test="@sctName = 'subst'">
+							<xsl:text>More nouns</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'verb'">
+							<xsl:text>More verbs</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'adjadv'">
+							<xsl:text>weitere Adjektive / Adverbien anzeigen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'praep'">
+							<xsl:text>weitere Präpositionen anzeigen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'definition'">
+							<xsl:text>weitere Definitionen anzeigen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'abbrev'">
+							<xsl:text>weitere Abkürzungen anzeigen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'phrase'">
+							<xsl:text>weitere Phrase anzeigen</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'example'">
+							<xsl:text>More examples</xsl:text>
+						</xsl:if>
+						<xsl:if test="@sctName = 'flect'">
+							<xsl:text>weitere Flexionen anzeigen</xsl:text>
+						</xsl:if>
+						<span class="js-moreEntriesCount">
+							<xsl:text> (</xsl:text>
+							<xsl:value-of select="(./@sctCount - 1)"/>
+							<xsl:text> / </xsl:text>
+							<xsl:value-of select="./@sctTotalCnt"/>
+							<xsl:text>)</xsl:text>
+						</span>
+						<span class="sp spdict s_2765670405 icon" title=""><xsl:attribute xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="title"><xsl:text>Weitere Treffer anzeigen</xsl:text></xsl:attribute> </span>
+					</span>
+				</h4>
+			</xsl:if>
+		</div>
+	</xsl:template><xsl:template match="section" mode="index">
+		<table>
+			<tbody title="expanded no direct" data-dz-role="result">
+				<xsl:apply-templates select="./entry" mode="table-row"/>
+			</tbody>
+		</table>
+	</xsl:template><xsl:template match="word" mode="table-row">
+		<td>
+			 
+		</td>
+		<td>
+			 
+		</td>
+		<td class="text">
+			<span><xsl:value-of select="."/></span>
+		</td>
+	</xsl:template><xsl:template match="link" mode="table-row">
+		<tr>
+			<td class="text">
+				<a>
+					<xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+					<xsl:value-of select="."/>
+				</a>
+			</td>
+		</tr>
+	</xsl:template><public-xsl:template xmlns:public-xsl="http://www.w3.org/1999/XSL/Transform" match="link" mode="link">
+		<span class="spirit s_info_l">
+			<public-xsl:attribute name="onclick">getMoreInfo(event,'<public-xsl:value-of select="."/>');</public-xsl:attribute>
+		</span>
+	</public-xsl:template><xsl:template match="base" mode="entry">
+		
+		<td>
+			<xsl:if test="@flectionurl != ''">
+				<span class="sp spdict s_2558022912 " title="Flexionstabelle anzeigen"> </span>
+			</xsl:if>
+		</td>
+		<td>
+			 
+		</td>
+		<td class="text">
+			<span><xsl:value-of select="."/></span>
+			<xsl:if test="//baselist[@index='1']">
+				 <i>von <xsl:value-of select="../@word"/></i>
+			</xsl:if>
+		</td>
+	</xsl:template><xsl:template match="realmgroup">
+		<button>
+			<xsl:attribute name="onclick">filterRealm('<xsl:value-of select="@type"/>', this);</xsl:attribute>
+			<xsl:value-of select="@type"/>
+		</button> <br/>
+	</xsl:template><xsl:template match="part">
+		<xsl:if test="section">
+			<xsl:apply-templates select="./section" mode="section"/>
+		</xsl:if>
+	</xsl:template><xsl:template match="repr" mode="repr">
+		<xsl:apply-templates mode="repr"/>
+	</xsl:template><xsl:template match="cc" mode="repr">
+		<span lang="zh-Hans" xml:lang="zh-Hans"><xsl:copy-of select="cs"/></span>
+		<xsl:text> [</xsl:text><span lang="zh-Hant" xml:lang="zh-Hant"><xsl:copy-of select="ct"/></span><xsl:text>]</xsl:text>
+		<xsl:text> </xsl:text><xsl:copy-of select="pn"/>
+	</xsl:template><xsl:template match="similar|ffsynlist" mode="entries">
+		<tbody>
+			<tr>
+				<td class="text">
+					
+					<xsl:variable name="sizeA" select="count(./side[position() = '1']/word)"/>
+					<xsl:for-each select="./side[position() = '1']/word">
+						<xsl:call-template name="word">
+							<xsl:with-param name="wordValue" select="."/>
+						</xsl:call-template>
+						<xsl:if test="position() &lt; $sizeA">
+							<xsl:text>, </xsl:text>
+						</xsl:if>
+					</xsl:for-each>
+					
+					<xsl:text> </xsl:text>
+				</td>
+				<td class="text">
+					
+					<xsl:variable name="sizeB" select="count(./side[position() = '2']/word)"/>
+					<xsl:for-each select="./side[position() = '2']/word">
+						<xsl:call-template name="word">
+							<xsl:with-param name="wordValue" select="."/>
+						</xsl:call-template>
+						<xsl:if test="position() &lt; $sizeB">
+							<xsl:text>, </xsl:text>
+						</xsl:if>
+					</xsl:for-each>
+					
+					<xsl:text> </xsl:text>
+				</td>
+			</tr>
+		</tbody>
+	</xsl:template><xsl:template match="*" mode="repr">
+		<xsl:copy><xsl:apply-templates mode="repr"/></xsl:copy>
+	</xsl:template><xsl:template match="similar" mode="breadcrumb">
+		<xsl:if test="side/word">
+			<a onclick="$(document).scrollTo('#sim', 150);">
+				<xsl:text>Ähnliche</xsl:text>
+			</a>
+			<span>::</span>
+		</xsl:if>
+	</xsl:template><xsl:template match="similar" mode="section">
+		<xsl:if test="side/word">
+			<div class="section" id="sim">
+				<table>
+					<xsl:call-template name="section-colgroup-twocols"/>
+					<thead>
+						<tr>
+							<th colspan="2">
+								<xsl:choose>
+									
+									<xsl:when test="count(../sectionlist/*) = 0">
+										<xsl:text>Meinten Sie ...</xsl:text>
+									</xsl:when>
+									<xsl:otherwise>
+										<xsl:text>Orthographically similar words</xsl:text>
+									</xsl:otherwise>
+								</xsl:choose>
+							</th>
+						</tr>
+					</thead>
+					<xsl:apply-templates select="." mode="entries"/>
+				</table>
+			</div>
+		</xsl:if>
+	</xsl:template><xsl:template name="word">
+		<xsl:param name="wordValue"/>
+		<xsl:if test="./@vocab = 1 and /*/@dictQueryXSLT='2' and /*/search/@lp='ende'">
+			
+			<a>
+				<xsl:attribute name="href">
+					
+					<xsl:if test="/*/@lp='ende' and ancestor::side/@lang='en'">
+						<xsl:text>/englisch-deutsch/</xsl:text>
+					</xsl:if>
+					<xsl:if test="/*/@lp='ende' and ancestor::side/@lang='de'">
+						<xsl:text>/deutsch-englisch/</xsl:text>
+					</xsl:if>
+					
+					
+					<xsl:value-of select="$wordValue"/>
+					<xsl:text>.html</xsl:text>
+				</xsl:attribute>
+				<xsl:value-of select="$wordValue"/>
+			</a>
+		</xsl:if>
+		<xsl:if test="not(./@vocab = 1 and /*/@dictQueryXSLT='2' and /*/search/@lp='ende')">
+			<span><xsl:value-of select="$wordValue"/></span>
+		</xsl:if>
+	</xsl:template><xsl:template match="/*">
+		<xsl:choose>
+			<xsl:when test="@leorendertarget='1'">
+				<xsl:apply-templates select="." mode="index"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:apply-templates select="//*[@leorendertarget='1']" mode="index"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template><xsl:template match="title">
+		TITEL!
+	</xsl:template><xsl:template match="xml" mode="index">
+		<xsl:param name="filter" select="-1"/>
+		<xsl:variable name="lp" select="string(./search/@lp)"/>
+
+		<div data-dz-role="result">
+			<xsl:if test="./dictQueryError">
+				<xsl:apply-templates select="./dictQueryError"/>
+			</xsl:if>
+			<xsl:if test="not(./dictQueryError)">
+				<xsl:if test="/*/@dictQueryXSLT='2'">
+					<h1 style="text-align: left; background-color: transparent; padding-left: 0;"><xsl:text>Englisch-Deutsch Übersetzung für:</xsl:text><xsl:text> </xsl:text><xsl:value-of select="./search/@original"/></h1>
+				</xsl:if>
+				
+				<xsl:if test="not(./search/@where = '0')">
+					<div class="info">
+						<span class="sp spdict s_2691713567 symbol" title="i"> </span>
+						<xsl:text>Your search direction was</xsl:text>
+						<xsl:text> </xsl:text>
+						<b>
+							<xsl:variable name="otherLang">
+								<xsl:choose>
+									<xsl:when test="$lp = 'ende'">
+										<xsl:text>English</xsl:text>
+									</xsl:when>
+									<xsl:when test="$lp = 'frde'">
+										<xsl:text>	French</xsl:text>
+									</xsl:when>
+									<xsl:when test="$lp = 'esde'">
+										<xsl:text>	Spanish</xsl:text>
+									</xsl:when>
+									<xsl:when test="$lp = 'itde'">
+										<xsl:text>	Italian</xsl:text>
+									</xsl:when>
+									<xsl:when test="$lp = 'chde'">
+										<xsl:text>Chinese</xsl:text>
+									</xsl:when>
+									<xsl:when test="$lp = 'rude'">
+										<xsl:text>	Russian</xsl:text>
+									</xsl:when>
+									<xsl:when test="$lp = 'ptde'">
+										<xsl:text>	Portuguese</xsl:text>
+									</xsl:when>
+									<xsl:when test="$lp = 'plde'">
+										<xsl:text>	Polish</xsl:text>
+									</xsl:when>
+								</xsl:choose>
+							</xsl:variable>
+							<xsl:if test="./search/@where = '-1'">
+								<xsl:value-of select="$otherLang"/>
+								<xsl:text> </xsl:text>
+								<xsl:text>to German</xsl:text>
+							</xsl:if>
+
+							<xsl:if test="./search/@where = '1'">
+								<xsl:text>German to</xsl:text>
+								<xsl:text> </xsl:text>
+								<xsl:value-of select="$otherLang"/>
+							</xsl:if>
+						</b>
+						<xsl:text> </xsl:text>
+						<xsl:text>.</xsl:text>
+						<br/>
+						<xsl:text>Change to</xsl:text>
+						<xsl:text> </xsl:text>
+						<a href="javascript:dict.setSearchLoc(0);">
+							<xsl:text>bidirectional search?</xsl:text>
+							<xsl:text> </xsl:text>
+							<span class="sp spdict s_1779011751 " title="&lt;-&gt;"> </span>
+						</a>
+					</div>
+				</xsl:if>
+				
+				<xsl:variable name="count" select="count(./sectionlist/*)"/>
+				<xsl:if test="$count = 0">
+					<div class="section">
+						<div>
+							<table class="text">
+								<thead>
+									<tr>
+										<th colspan="3">
+											<xsl:text>Sorry, we found no matches for your search term(s) </xsl:text>
+											<i><xsl:value-of select="./search/@original"/></i>
+											<xsl:text>.</xsl:text>
+										</th>
+									</tr>
+									<xsl:if test="$lp = 'ptde' or $lp = 'plde'">
+										<tr>
+											<td colspan="3">
+												<xsl:text>Handelt es sich um einen im Wörterbuch fehlenden Begriff, werden wir ihn in Kürze ergänzen.</xsl:text>
+											</td>
+										</tr>
+									</xsl:if>
+								</thead>
+							</table>
+						</div>
+					</div>
+
+					
+				</xsl:if>
+
+				<div>
+					<div itemprop="breadcrumb" class="breadcrumb">
+						<xsl:apply-templates select="./sectionlist/section" mode="breadcrumb"/>
+						<xsl:if test="not(count(./sectionlist/*) = 0)">
+							<xsl:apply-templates select="./similar" mode="breadcrumb"/>
+						</xsl:if>
+						<xsl:apply-templates select="./ffsynlist" mode="breadcrumb"/>
+						<xsl:apply-templates select="./forumRef" mode="breadcrumb"/>
+					</div>
+					<xsl:apply-templates select="./baseform" mode="result"/>
+
+					<xsl:apply-templates select="." mode="index-results">
+						<xsl:with-param name="filter" select="$filter"/>
+					</xsl:apply-templates>
+
+					
+					<xsl:if test="$count = 0">
+						<xsl:apply-templates select="./similar" mode="section"/>
+					</xsl:if>
+					<div class="section">
+						<table>
+							<colgroup>
+								<col style="width:auto"/>
+								<col style="width:auto"/>
+							</colgroup>
+							<thead>
+								<tr><th colspan="2"><xsl:text>Other actions</xsl:text></th></tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="center">
+										<xsl:variable name="croppedSearch" select="translate(./search/@original,'&quot;','')"/>
+										<button type="button" class="img medium" data-dz-param1="{./search/@original}">
+											<xsl:attribute name="onclick">
+												cancelEvent(event);
+												Dz.callFromDom(this, function(word) {
+													Leo.forum.openUnsolvedquery(word);
+												});
+											</xsl:attribute>
+											<span class="spContainer">
+												<span class="sp spdict s_3537473536 " title="trainer"> </span>
+											</span>
+											<xsl:text>Start a forum thread on your</xsl:text><br/>
+											<xsl:text>search term(s)</xsl:text>
+											<xsl:text> "</xsl:text>
+											<xsl:variable name="length" select="14"/>
+											<xsl:if test="string-length($croppedSearch) &gt; $length">
+												<xsl:copy-of select="substring($croppedSearch,0,$length -2)"/>...
+											</xsl:if>
+											<xsl:if test="not(string-length($croppedSearch) &gt; $length)">
+												<xsl:value-of select="$croppedSearch"/>
+											</xsl:if>
+											<xsl:text>"</xsl:text>
+											<xsl:text>.</xsl:text>
+										</button>
+									</td>
+									<td class="center">
+										<button type="button" class="img medium" onclick="openManageFolder();">
+											<span class="spContainer">
+												<span class="sp spdict s_189627130 " title="trainer"> </span>
+											</span>
+											<xsl:text>Manage vocabulary</xsl:text>
+										</button>
+
+									</td>
+								</tr>
+								<tr>
+									<td class="center">
+										<button type="button" class="img medium">
+											<xsl:attribute name="onclick">dict.loadCache();</xsl:attribute>
+											<span class="spContainer">
+												<span class="sp spdict s_3925437515 " title="trainer"> </span>
+											</span>
+											<xsl:text>View search history</xsl:text>
+										</button>
+									</td>
+									<td class="center">
+										
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					
+					<xsl:if test="not($count = 0)">
+						<xsl:apply-templates select="./similar" mode="section"/>
+					</xsl:if>
+					<xsl:apply-templates select="./ffsynlist" mode="section"/>
+					<xsl:apply-templates select="./forumRef" mode="section"/>
+					
+					<xsl:if test="/*/@dictQueryXSLT='2'">
+						<div itemprop="breadcrumb" class="breadcrumb" style="margin-top: 20px">
+							<xsl:text>Sie sind hier:</xsl:text>
+							<xsl:text> </xsl:text>
+							<a href="http://www.leo.org">LEO.org</a>
+							<span>::</span>
+							<a href="http://dict.leo.org/ende/index_de.html">Wörterbuch Englisch-Deutsch</a>
+							<span>::</span>
+							<a>
+								<xsl:attribute name="href">
+									<xsl:text>http://dict.leo.org/englisch-deutsch/</xsl:text>
+									<xsl:value-of select="./search/@original"/>
+									<xsl:text>.html</xsl:text>
+								</xsl:attribute>
+								<xsl:value-of select="./search/@original"/>
+							</a>
+						</div>
+					</xsl:if>
+				</div>
+			</xsl:if>
+		</div>
+	</xsl:template><xsl:template match="xml" mode="index-results">
+		<xsl:param name="filter"/>
+
+		<xsl:if test="$filter = -1">
+			
+			<xsl:apply-templates select="./sectionlist/section" mode="section"/>
+
+			
+			
+
+			
+			
+
+		</xsl:if>
+		<xsl:if test="not($filter = -1)">
+			<xsl:apply-templates select="./sectionlist/section[@sctnum=$filter]" mode="section"/>
+		</xsl:if>
+	</xsl:template><xsl:template match="date" mode="xsl">
+		<xsl:variable name="ticks">
+			<xsl:call-template name="localtime">
+				<xsl:with-param name="ticks" select="number(.)"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:call-template name="timestamp">
+			<xsl:with-param name="ticks" select="$ticks"/>
+		</xsl:call-template>
+	</xsl:template><xsl:template match="*" mode="weekday">
+		<xsl:variable name="ticks">
+			<xsl:call-template name="localtime">
+				<xsl:with-param name="ticks" select="number(.)"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:call-template name="weekday">
+			<xsl:with-param name="ticks" select="$ticks"/>
+		</xsl:call-template>
+	</xsl:template><xsl:template match="*" mode="timestamp">
+		<xsl:param name="format"/>
+		<xsl:variable name="ticks">
+			<xsl:call-template name="localtime">
+				<xsl:with-param name="ticks" select="number(.)"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:call-template name="timestamp">
+			<xsl:with-param name="ticks" select="$ticks"/>
+			<xsl:with-param name="format" select="$format"/>
+		</xsl:call-template>
+	</xsl:template><xsl:template match="*" mode="date">
+		<xsl:param name="format"/>
+		<xsl:variable name="ticks">
+			<xsl:call-template name="localtime">
+				<xsl:with-param name="ticks" select="number(.)"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:call-template name="date">
+			<xsl:with-param name="format" select="$format"/>
+			<xsl:with-param name="ticks" select="$ticks"/>
+		</xsl:call-template>
+	</xsl:template><xsl:template match="*" mode="time">
+		<xsl:variable name="ticks">
+			<xsl:call-template name="localtime">
+				<xsl:with-param name="ticks" select="number(.)"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:call-template name="time">
+			<xsl:with-param name="ticks" select="$ticks"/>
+		</xsl:call-template>
+	</xsl:template><xsl:template match="*" mode="iso8601-date">
+		<xsl:variable name="ticks">
+			<xsl:call-template name="localtime">
+				<xsl:with-param name="ticks" select="number(.)"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:call-template name="iso8601-date">
+			<xsl:with-param name="ticks" select="$ticks"/>
+		</xsl:call-template>
+	</xsl:template><xsl:template name="date">
+		<xsl:param name="format"/>
+		<xsl:param name="ticks"/>
+		<xsl:variable name="yearLeap" select="floor(1+ (number($ticks)-3*31536000) div (31536000*4 + 86400))"/>
+		<xsl:variable name="year" select="1970 + floor((number($ticks)-$yearLeap*86400) div 31536000)"/>
+		<xsl:variable name="yday" select="floor((number($ticks) - ($year - 1970)*31536000 - floor(($year - 1972) div 4)*86400) div 86400)"/>
+
+		<xsl:variable name="dayLeap">
+			<xsl:if test="$yday &gt;= 59 or $year mod 4 != 0">
+				<xsl:value-of select="$yday"/>
+			</xsl:if>
+			<xsl:if test="not($yday &gt;= 59 or $year mod 4 != 0)">
+				<xsl:value-of select="$yday + 1"/>
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="month">
+			<xsl:call-template name="month">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="day">
+			<xsl:if test="$yday != 59 or $year mod 4 != 0">
+				<xsl:value-of select="$dayLeap - substring('000031059090120151181212243273304334', 3 * $month - 2, 3)"/>
+			</xsl:if>
+			<xsl:if test="not($yday != 59 or $year mod 4 != 0)">
+				29
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="monthString">
+			<xsl:call-template name="monthString">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+				<xsl:with-param name="format" select="$format"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:if test="$format = 'nice'">
+			<xsl:value-of select="concat(format-number($day, '00'), '. ', $monthString, '. ', $year)"/>
+		</xsl:if>
+
+		<xsl:if test="not($format = 'nice')">
+			<xsl:value-of select="concat(format-number($day, '00'), '.', $monthString, '.', substring($year,3,2))"/>
+		</xsl:if>
+	</xsl:template><xsl:template name="iso8601-date">
+		<xsl:param name="ticks"/>
+		<xsl:variable name="yearLeap" select="floor(1+ (number($ticks)-3*31536000) div (31536000*4 + 86400))"/>
+		<xsl:variable name="year" select="1970 + floor((number($ticks)-$yearLeap*86400) div 31536000)"/>
+		<xsl:variable name="yday" select="floor((number($ticks) - ($year - 1970)*31536000 - floor(($year - 1972) div 4)*86400) div 86400)"/>
+
+		<xsl:variable name="dayLeap">
+			<xsl:if test="$yday &gt;= 59 or $year mod 4 != 0">
+				<xsl:value-of select="$yday"/>
+			</xsl:if>
+			<xsl:if test="not($yday &gt;= 59 or $year mod 4 != 0)">
+				<xsl:value-of select="$yday + 1"/>
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="month">
+			<xsl:call-template name="month">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="day">
+			<xsl:if test="$yday != 59 or $year mod 4 != 0">
+				<xsl:value-of select="$dayLeap - substring('000031059090120151181212243273304334', 3 * $month - 2, 3)"/>
+			</xsl:if>
+			<xsl:if test="not($yday != 59 or $year mod 4 != 0)">
+				29
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="monthString">
+			<xsl:call-template name="monthString">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:value-of select="concat($year , '-', $monthString, '-', format-number($day, '00'))"/>
+	</xsl:template><xsl:template name="monthString">
+		<xsl:param name="dayLeap"/>
+		<xsl:param name="format"/>
+
+		<xsl:if test="$format = 'nice'">
+			<xsl:choose>
+				<xsl:when test="$dayLeap  &lt;= 31"><xsl:text>Jan</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 59"><xsl:text>Feb</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 90"><xsl:text>Mar</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 120"><xsl:text>Apr</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 151"><xsl:text>May</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 181"><xsl:text>Jun</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 212"><xsl:text>Jul</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 243"><xsl:text>Aug</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 273"><xsl:text>Sep</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 304"><xsl:text>Oct</xsl:text></xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 334"><xsl:text>Nov</xsl:text></xsl:when>
+				<xsl:otherwise><xsl:text>Dec</xsl:text></xsl:otherwise>
+			</xsl:choose>
+		</xsl:if>
+		<xsl:if test="not($format = 'nice')">
+			<xsl:choose>
+				<xsl:when test="$dayLeap  &lt;= 31">01</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 59">02</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 90">03</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 120">04</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 151">05</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 181">06</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 212">07</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 243">08</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 273">09</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 304">10</xsl:when>
+				<xsl:when test="$dayLeap  &lt;= 334">11</xsl:when>
+				<xsl:otherwise>12</xsl:otherwise>
+			</xsl:choose>
+		</xsl:if>
+	</xsl:template><xsl:template name="time">
+		<xsl:param name="ticks"/>
+		<xsl:variable name="hour" select="floor((number($ticks) mod 86400) div 3600)"/>
+		<xsl:variable name="minute" select="floor((number($ticks) mod 3600) div 60)"/>
+
+		<xsl:value-of select="concat(format-number($hour, '00'), ':', format-number($minute, '00'))"/>
+	</xsl:template><xsl:template name="timestamp">
+		<xsl:param name="ticks"/>
+		<xsl:param name="format"/>
+		<xsl:variable name="yearLeap" select="floor(1+ (number($ticks)-3*31536000) div (31536000*4 + 86400))"/>
+		<xsl:variable name="year" select="1970 + floor((number($ticks)-$yearLeap*86400) div 31536000)"/>
+		
+		<xsl:variable name="hour" select="floor((number($ticks) mod 86400) div 3600)"/>
+		<xsl:variable name="minute" select="floor((number($ticks) mod 3600) div 60)"/>
+		<xsl:variable name="second" select="number($ticks) mod 60"/>
+		<xsl:variable name="yday" select="floor((number($ticks) - ($year - 1970)*31536000 - floor(($year - 1972) div 4)*86400) div 86400)"/>
+
+		<xsl:variable name="dayLeap">
+			<xsl:if test="$yday &gt;= 59 or $year mod 4 != 0">
+				<xsl:value-of select="$yday"/>
+			</xsl:if>
+			<xsl:if test="not($yday &gt;= 59 or $year mod 4 != 0)">
+				<xsl:value-of select="$yday + 1"/>
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="month">
+			<xsl:call-template name="month">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="day">
+			<xsl:if test="$yday != 59 or $year mod 4 != 0">
+				<xsl:value-of select="$dayLeap - substring('000031059090120151181212243273304334', 3 * $month - 2, 3)"/>
+			</xsl:if>
+			<xsl:if test="not($yday != 59 or $year mod 4 != 0)">
+				29
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="monthString">
+			<xsl:call-template name="monthString">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+				<xsl:with-param name="format" select="$format"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="result">
+			<xsl:if test="$format = 'nice'">
+				<xsl:value-of select="concat(format-number($day, '00'), ' ', $monthString, ' ', substring($year,3,2), ', ' , format-number($hour, '00'), ':', format-number($minute, '00'))"/>
+			</xsl:if>
+			<xsl:if test="not($format = 'nice')">
+				<xsl:value-of select="concat(format-number($day, '00'), '.', $monthString, '.', substring($year,3,2), '   ' , format-number($hour, '00'), ':', format-number($minute, '00'))"/>
+			</xsl:if>
+		</xsl:variable>
+		<xsl:value-of select="$result"/>
+	</xsl:template><xsl:template name="timespan">
+		<xsl:param name="ticks"/>
+		<xsl:variable name="hour" select="floor(number($ticks) div 3600)"/>
+		<xsl:variable name="minute" select="floor((number($ticks) mod 3600) div 60)"/>
+		<xsl:variable name="second" select="number($ticks) mod 60"/>
+
+		<xsl:value-of select="concat(format-number($hour, '00'), ':', format-number($minute, '00'))"/>
+	</xsl:template><xsl:template name="month">
+		<xsl:param name="dayLeap"/>
+		<xsl:choose>
+			<xsl:when test="$dayLeap  &lt;= 31">1</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 59">2</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 90">3</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 120">4</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 151">5</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 181">6</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 212">7</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 243">8</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 273">9</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 304">10</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 334">11</xsl:when>
+			<xsl:otherwise>12</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template><xsl:template name="mmonth">
+		<xsl:param name="dayLeap"/>
+		<xsl:choose>
+			<xsl:when test="$dayLeap  &lt;= 31">0</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 59">3</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 90">3</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 120">6</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 151">1</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 181">4</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 212">6</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 243">2</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 273">5</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 304">0</xsl:when>
+			<xsl:when test="$dayLeap  &lt;= 334">3</xsl:when>
+			<xsl:otherwise>5</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template><xsl:template name="weekday">
+		<xsl:param name="ticks"/>
+		<xsl:variable name="year" select="1970 + floor(number($ticks) div 31536000)"/>
+		<xsl:variable name="myear" select="(($year mod 100) + floor(($year mod 100) div 4)) mod 7"/>
+		<xsl:variable name="mcentury" select="(3 - (floor($year div 100)) mod 4) * 2"/>
+		<xsl:variable name="yday" select="floor((number($ticks) - ($year - 1970)*31536000 - floor(($year - 1972) div 4)*86400) div 86400)"/>
+
+		<xsl:variable name="dayLeap">
+			<xsl:if test="$yday &gt;= 59 or $year mod 4 != 0">
+				<xsl:value-of select="$yday"/>
+			</xsl:if>
+			<xsl:if test="not($yday &gt;= 59 or $year mod 4 != 0)">
+				<xsl:value-of select="$yday + 1"/>
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="month">
+			<xsl:call-template name="month">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="mmonth">
+			<xsl:call-template name="mmonth">
+				<xsl:with-param name="dayLeap" select="$dayLeap"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="day">
+			<xsl:if test="$yday != 59 or $year mod 4 != 0">
+				<xsl:value-of select="$dayLeap - substring('000031059090120151181212243273304334', 3 * $month - 2, 3)"/>
+			</xsl:if>
+			<xsl:if test="not($yday != 59 or $year mod 4 != 0)">
+				29
+			</xsl:if>
+		</xsl:variable>
+
+		<xsl:variable name="mday" select="(number($day) mod 7 + number($mmonth) + $myear + $mcentury) mod 7"/>
+
+		<xsl:call-template name="weekday-string">
+			<xsl:with-param name="mday" select="$mday"/>
+		</xsl:call-template>
+	</xsl:template><xsl:template name="weekday-string">
+		<xsl:param name="mday"/>
+		<xsl:variable name="weekday">
+			<xsl:choose>
+				<xsl:when test="$mday= 0">So</xsl:when>
+				<xsl:when test="$mday= 1">Mo</xsl:when>
+				<xsl:when test="$mday= 2">Di</xsl:when>
+				<xsl:when test="$mday= 3">Mi</xsl:when>
+				<xsl:when test="$mday= 4">Do</xsl:when>
+				<xsl:when test="$mday= 5">Fr</xsl:when>
+				<xsl:when test="$mday= 6">Sa</xsl:when>
+				<xsl:otherwise>So</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
+		<xsl:value-of select="$weekday"/>
+	</xsl:template><xsl:template name="localtime">
+		<xsl:param name="ticks"/>
+		<xsl:choose>
+			
+			<xsl:when test="not(number($ticks) &gt; 1206838800)"><xsl:value-of select="number($ticks) + (3600 * 1)"/></xsl:when>
+			<xsl:when test="not(number($ticks) &gt; 1224982800) and number($ticks) &gt;= 1206838800"><xsl:value-of select="number($ticks) + (3600 * 2)"/></xsl:when>
+			
+			
+			<xsl:when test="not(number($ticks) &gt; 1238288400) and number($ticks) &gt;= 1224982800"><xsl:value-of select="number($ticks) + (3600 * 1)"/></xsl:when>
+			<xsl:when test="not(number($ticks) &gt; 1256432400) and number($ticks) &gt;= 1238288400"><xsl:value-of select="number($ticks) + (3600 * 2)"/></xsl:when>
+			
+			
+			<xsl:when test="not(number($ticks) &gt; 1269738000) and number($ticks) &gt;= 1256432400"><xsl:value-of select="number($ticks) + (3600 * 1)"/></xsl:when>
+			<xsl:when test="not(number($ticks) &gt; 1288486800) and number($ticks) &gt;= 1269738000"><xsl:value-of select="number($ticks) + (3600 * 2)"/></xsl:when>
+			
+			
+			<xsl:when test="not(number($ticks) &gt; 1301187600) and number($ticks) &gt;= 1288486800"><xsl:value-of select="number($ticks) + (3600 * 1)"/></xsl:when>
+			<xsl:when test="not(number($ticks) &gt; 1319936400) and number($ticks) &gt;= 1301187600"><xsl:value-of select="number($ticks) + (3600 * 2)"/></xsl:when>
+			
+			
+			<xsl:when test="not(number($ticks) &gt; 1332550800) and number($ticks) &gt;= 1319936400"><xsl:value-of select="number($ticks) + (3600 * 1)"/></xsl:when>
+			<xsl:when test="not(number($ticks) &gt; 1351378800) and number($ticks) &gt;= 1332550800"><xsl:value-of select="number($ticks) + (3600 * 2)"/></xsl:when>
+			
+			
+            <xsl:when test="not(number($ticks) &gt; 1364691600) and number($ticks) &gt;= 1351378800"><xsl:value-of select="number($ticks) + (3600 * 1)"/></xsl:when>
+            <xsl:when test="not(number($ticks) &gt; 1382835600) and number($ticks) &gt;= 1364691600"><xsl:value-of select="number($ticks) + (3600 * 2)"/></xsl:when>
+            
+			<xsl:otherwise>
+				<xsl:value-of select="number($ticks) + (3600 * 1)"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template><xsl:template name="js-string">
+		<xsl:param name="s"/>
+
+		<xsl:text>'</xsl:text>
+		<xsl:call-template name="js-string-escape-content">
+			<xsl:with-param name="s" select="$s"/>
+		</xsl:call-template>
+		<xsl:text>'</xsl:text>
+	</xsl:template><xsl:template name="js-string-escape-content">
+		<xsl:param name="s"/>
+
+		<xsl:choose>
+			<xsl:when test="$s = ''"/>
+			<xsl:otherwise>
+				<xsl:call-template name="js-string-escape-content-char">
+					<xsl:with-param name="c" select="substring($s, 0, 1)"/>
+				</xsl:call-template>
+				<xsl:call-template name="js-string-escape-content">
+					<xsl:with-param name="s" select="substring($s, 1)"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template><xsl:template name="js-string-escape-content-char">
+		<xsl:param name="c"/>
+		<xsl:choose>
+			<xsl:when test="$c = '\'">
+				<xsl:text>\\</xsl:text>
+			</xsl:when>
+			<xsl:when test="$c = &quot;'&quot;">
+				<xsl:text>\'</xsl:text>
+			</xsl:when>
+			<xsl:when test="$c = '&#10;'">
+				<xsl:text>\n</xsl:text>
+			</xsl:when>
+			<xsl:when test="$c = '&#13;'">
+				<xsl:text>\r</xsl:text>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:text>X</xsl:text>
+				
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template></xsl:stylesheet>

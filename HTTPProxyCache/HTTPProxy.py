@@ -1,30 +1,49 @@
 #!/usr/bin/env python
 import os
 import urllib
-import urlparse
-import fnmatch
+import md5
 import SimpleHTTPServer
 
 class HTTPProxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 	def do_GET(self):
 		print self.path
-		if self.blocked_path(self.getfilters("blacklist.txt")):
-			self.blockedurl()
+		digest = './cachefiles/' + md5.new(self.path).hexdigest()
+		print digest
+		#self.checkheader(digest)
+		try:
+			with file(digest) as cachefile:
+				print "file already exists, reading from cache..."
+				self.wfile.write(cachefile.read())
+		except IOError:
+			self.cache(digest)
+		print "finished"
+		return
+
+	def cache(self , digest):
+		urlfile = urllib.urlopen(self.path) 
+		self.copyfile(urlfile , self.wfile)
+		header = urlfile.info().getrawheader("Cache-Control")
+		print header
+		if ((header is None) or ("no-cache" or "no-store" or "max-age=0") not in header):
+			#cachefile = open(digest , 'w')
+			#cachefile.close()
+			#self.copyfile(urlfile , cachefile)
+			print "writing content to cache file"
+			urllib.urlretrieve(self.path , digest)
+			#cachefile.close()
 		else:
-			self.copyfile(urllib.urlopen(self.path), self.wfile)
+			print"site not cached: header prevents caching"
+		return
 
-	def cache(self , path):
-		print "caching" , path
-		retVal = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nContent blocked by proxy\r\n"
-		self.wfile.write(retVal)
-
-	def is_cached(self):
-		servername = urlparse.urlparse(self.path)
-		servername = servername.netloc
-		print servername
-		retVal = 0
-		for blackstring in blacklist :
-			print blackstring
-			if fnmatch.fnmatch(servername , blackstring): retVal = 1
-		return retVal
+	def checkheader(self , digest):
+		header = self.headers.getrawheader("Cache-Control")
+		print header
+		if header is None:
+			return
+		if (("no-cache" or "no-store" or "max-age=0") in header):
+			print "deleting cache file..."
+			os.remove(digest)
+		return
+			
+		
