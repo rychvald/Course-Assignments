@@ -22,16 +22,16 @@ class HTTPProxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 	def cache(self , digest):
 		urlfile = urllib.urlopen(self.path) 
-		self.copyfile(urlfile , self.wfile)
+		self.wfile.write(urlfile.read(-1))
 		header = urlfile.info().getrawheader("Cache-Control")
 		print header
 		if ((header is None) or ("no-cache" or "no-store" or "max-age=0") not in header):
-			#cachefile = open(digest , 'w')
+			cachefile = open(digest , 'wb')
 			#cachefile.close()
-			#self.copyfile(urlfile , cachefile)
+			self.copyfile(urlfile , cachefile)
 			print "writing content to cache file"
-			urllib.urlretrieve(self.path , digest)
-			#cachefile.close()
+			#urllib.urlretrieve(self.path , digest)
+			cachefile.close()
 		else:
 			print"site not cached: header prevents caching"
 		return
