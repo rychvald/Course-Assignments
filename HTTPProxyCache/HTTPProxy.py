@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import os
 import urllib
+import tempfile
 import md5
+import shutil
 import SimpleHTTPServer
 
 class HTTPProxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -21,17 +23,13 @@ class HTTPProxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		return
 
 	def cache(self , digest):
-		urlfile = urllib.urlopen(self.path) 
-		self.wfile.write(urlfile.read(-1))
+		urlfile = urllib.urlopen(self.path)
+		self.copyfile(urlfile , self.wfile)
 		header = urlfile.info().getrawheader("Cache-Control")
 		print header
 		if ((header is None) or ("no-cache" or "no-store" or "max-age=0") not in header):
-			cachefile = open(digest , 'wb')
-			#cachefile.close()
-			self.copyfile(urlfile , cachefile)
 			print "writing content to cache file"
-			#urllib.urlretrieve(self.path , digest)
-			cachefile.close()
+			urllib.urlretrieve(self.path , digest)
 		else:
 			print"site not cached: header prevents caching"
 		return
