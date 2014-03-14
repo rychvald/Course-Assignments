@@ -1,30 +1,33 @@
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.*;
 
-
-public class Ex1NoSync {
+public class Ex1ReentrantLock {
 
 	int counter;
 	Set<ThreadA> IncThreads;
 	Set<ThreadB> DecThreads;
+	static Ex1ReentrantLock exercise;
+	ReentrantLock lock;
 	
 	public static void main(String[] args) {
-		Ex1NoSync exercise = new Ex1NoSync(8);
+		exercise = new Ex1ReentrantLock(8);
 		exercise.runThreads();
 	}
 	
-	public Ex1NoSync() {
+	public Ex1ReentrantLock() {
 		 this(1,1);
 	}
 	
-	public Ex1NoSync(int i) {
+	public Ex1ReentrantLock(int i) {
 		 this(i,i);
 	}
 
-	public Ex1NoSync(int n, int m) {
+	public Ex1ReentrantLock(int n, int m) {
 		counter = 0;
 		this.IncThreads = new HashSet<ThreadA>();
 		this.DecThreads = new HashSet<ThreadB>();
+		lock = new ReentrantLock();
 		while(n > 0) {
 			ThreadA IncThread = new ThreadA();
 			this.IncThreads.add(IncThread);
@@ -68,22 +71,24 @@ public class Ex1NoSync {
 		
 		public void run() {
 			for(int i = 0; i < 100000 ; i++) {
-				myCounter = counter;
-				myCounter++;
-				counter = myCounter;
+				lock.lock();
+				this.changeCounter();
+				lock.unlock();
 			}
+		}
+		
+		public void changeCounter() {
+			myCounter = counter;
+			myCounter++;
+			counter = myCounter;
 		}
 	}
 	
-	public class ThreadB extends Thread {
-		int myCounter;
-		
-		public void run() {
-			for(int i = 0; i < 100000 ; i++) {
-				myCounter = counter;
-				myCounter--;
-				counter = myCounter;
-			}
+	public class ThreadB extends ThreadA {
+		public void changeCounter() {
+			myCounter = counter;
+			myCounter--;
+			counter = myCounter;
 		}
 	}
 }

@@ -1,30 +1,59 @@
+import java.util.HashSet;
+import java.util.Set;
 
 public class Ex1Sync {
 
 	int counter;
-	ThreadA IncThread;
-	ThreadB DecThread;
+	Set<ThreadA> IncThreads;
+	Set<ThreadB> DecThreads;
+	static Ex1Sync exercise;
 	
 	public static void main(String[] args) {
-		Ex1Sync exercise = new Ex1Sync();
+		exercise = new Ex1Sync(8);
 		exercise.runThreads();
 	}
 	
-	Ex1Sync() {
+	public Ex1Sync() {
+		 this(1,1);
+	}
+	
+	public Ex1Sync(int i) {
+		 this(i,i);
+	}
+
+	public Ex1Sync(int n, int m) {
 		counter = 0;
-		IncThread = new ThreadA();
-		DecThread = new ThreadB();
+		this.IncThreads = new HashSet<ThreadA>();
+		this.DecThreads = new HashSet<ThreadB>();
+		while(n > 0) {
+			ThreadA IncThread = new ThreadA();
+			this.IncThreads.add(IncThread);
+			n--;
+		}
+		while(m > 0) {
+			ThreadB DecThread = new ThreadB();
+			this.DecThreads.add(DecThread);
+			m--;
+		}
 	}
 	
 	public void runThreads() {
 		System.out.println("Initial Value of counter: "+counter);
 		long startTime = System.nanoTime();
-		IncThread.start();
-		DecThread.start();
+		for(ThreadA IncThread : this.IncThreads) {
+			IncThread.start();
+		}
+		for(ThreadB DecThread : this.DecThreads) {
+			DecThread.start();
+		}
 		System.out.println("Running threads...");
 		try {
-			IncThread.join();
-			DecThread.join();
+			for(ThreadA IncThread : this.IncThreads) {
+				IncThread.join();
+			}
+			for(ThreadB DecThread : this.DecThreads) {
+				DecThread.join();
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -36,11 +65,6 @@ public class Ex1Sync {
 	
 	public class ThreadA extends Thread {		
 		int myCounter;
-		Ex1Sync shared;
-		
-		/*public ThreadA(Ex1Sync shared) {
-			this.shared = shared;
-		}*/
 		
 		public void run() {
 			for(int i = 0; i < 100000 ; i++) {
@@ -49,17 +73,21 @@ public class Ex1Sync {
 		}
 		
 		public void changeCounter() {
-			myCounter = counter;
-			myCounter++;
-			counter = myCounter;
+			synchronized(exercise) {
+				myCounter = counter;
+				myCounter++;
+				counter = myCounter;
+			}
 		}
 	}
 	
 	public class ThreadB extends ThreadA {
 		public void changeCounter() {
-			myCounter = counter;
-			myCounter--;
-			counter = myCounter;
+			synchronized(exercise) {
+				myCounter = counter;
+				myCounter--;
+				counter = myCounter;
+			}
 		}
 	}
 }
