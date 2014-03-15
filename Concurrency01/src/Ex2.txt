@@ -1,1 +1,6 @@
 Exercise2
+
+Informal reasoning:
+The main source of problems is the manipulation / access to the variable pot.
+First of all, we have to assure, that when a savage eats (i.e., pot is decremented), this is done by only one savage simultaneously.
+Therefore, we surround the critical part by a synchronized block. If a savage realises that the pot is empty, it orders the cook
