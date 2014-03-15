@@ -16,7 +16,7 @@ public class Ex2Savages1 {
 	}
 	
 	public Ex2Savages1() {
-		this(8, 10);
+		this(8, 100);
 	}
 	
 	public Ex2Savages1(int capacity, int savageNumber) {
