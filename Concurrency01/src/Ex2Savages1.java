@@ -49,10 +49,14 @@ public class Ex2Savages1 {
 					System.out.println("Pot contents: "+pot);
 				}
 			} else {
-				System.out.println("Savage is hungry, but pot is empty!");
-				cook.refillRequest();
-				return;
+				this.hungry();
 			}
+		}
+		
+		private void hungry() {
+			System.out.println("Savage is hungry, but pot is empty!");
+			cook.refillRequest();
+			this.eat();
 		}
 	}
 	
