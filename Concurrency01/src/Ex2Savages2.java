@@ -3,25 +3,25 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class Ex2Savages1 {
+public class Ex2Savages2 {
 
 	int capacity;
 	volatile int pot;
 	Cook cook;
 	Set<Savage> savages;
 	ReentrantLock lock;
-	static Ex2Savages1 tribe;
+	static Ex2Savages2 tribe;
 	
 	public static void main(String[] args) {
-		tribe = new Ex2Savages1();
+		tribe = new Ex2Savages2();
 		tribe.enjoyYourMeal();
 	}
 	
-	public Ex2Savages1() {
+	public Ex2Savages2() {
 		this(8, 100);
 	}
 	
-	public Ex2Savages1(int capacity, int savageNumber) {
+	public Ex2Savages2(int capacity, int savageNumber) {
 		lock = new ReentrantLock();
 		this.capacity = capacity;
 		this.cook = new Cook();
@@ -40,17 +40,27 @@ public class Ex2Savages1 {
 	}
 	
 	public class Savage extends Thread {
+		private Integer ticketNumber;
+		
 		public void run() {
-			this.eat();
+			while (true) {
+				this.eat();
+			}
 		}
 		
 		private void eat() {
 			lock.lock();
 			if (pot > 0) {
-				System.out.println("Savage enjoyed a meal!");
-				pot--;
-				System.out.println("Pot contents: "+pot);
+				if (this.ticketNumber == null) {
+					this.ticketNumber = pot;
+				}
+				if (this.ticketNumber == pot) {
+					System.out.println("Savage "+this.ticketNumber+" enjoyed a meal!");
+					pot--;
+					System.out.println("Pot contents: "+pot);
+				}
 				lock.unlock();
+				yield();
 			} else {
 				lock.unlock();
 				this.hungry();
