@@ -1,0 +1,10 @@
+Exercise2
+
+Informal reasoning:
+The main source of problems is the manipulation / access to the variable pot.
+First of all, we have to assure, that when a savage eats (i.e., pot is decremented), this is done by only one savage simultaneously.
+The difficulty here is that the savage only is allowed to eat from the pot, if the pot value is greater than 0. Therefore, we have to assure that no other savage reads the value simultaneously or slightly later BEFORE the first savage has decreased the pot value. This could cause that both savage read a content of 1 and therefore decrease the value of the pot, which would result in an invalid content of -1.
+As we have an if-else statement checking for the contents in the pot and, if applicable, decresing the pot content, we would need to surround at least the whole if-else block with a synchronized statement. However, this would cause a deadlock, as in the case of an empty pot, the hungry method is called which invocates a pot refill in the Cook class. The cook class, as it changes the pot value, would also need to surround this portion of code with a synchronize statement. It is here where the deadlock could occur. Therefore, we use a reentrant lock, which is either unlocked within the if statement after the operation on the pot value has been executed OR at the beginning of the else statement, so that the pot is free again for the cook to change its value. 
+
+For the second part of the exercise:
+We assign a number to each savage when he eats from the pot for the first time. The number is equal to the pot content BEFORE the savage eats from it. Each savage may only eat from the pot if the value of the pot is equal to the number of the savage. It is clear that this mechanism is fair and each savage will eat but once "per round". The savages do not even need to know how many other savages are eating as well.

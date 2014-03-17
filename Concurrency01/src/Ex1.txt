@@ -1,0 +1,29 @@
+Ex1.txt
+
+This file contains the results for A1,Ex1.4
+
+machine specs:
+Model Name:	MacBook Pro
+  Model Identifier:	MacBookPro5,5
+  Processor Name:	Intel Core 2 Duo
+  Processor Speed:	2.53 GHz
+  Number of Processors:	1
+  Total Number of Cores:	2
+  L2 Cache:	3 MB
+  Memory:	8 GB
+  Bus Speed:	1.07 GHz
+
+
+| Threads	| runtime1	| runtime2	| runtime3	| speedup2	| speedup3	|
+| 1			|  6.153	|  20.155	|  46.669	| -2.28		| -6.58		|
+| 2			| 11.895	|  32.178	|  64.066	| -1.70		| -4.39		|
+| 4			| 11.308	|  56.601	|  81.463	| -4.01		| -6.20		|
+| 8			| 17.175	| 106.779	| 123.235	| -5.22		| -6.18		|
+
+the times are in milliseconds (= 1'000'000ns)
+
+runtime1 = Ex1NoSync
+runtime2 = Ex1Sync
+runtime3 = Ex1ReentrantLock
+speedup2 = speedup of Ex1Sync compared to Ex1NoSync
+speedup3 = speedup of Ex1ReentrantLock compared to Ex1NoSync
