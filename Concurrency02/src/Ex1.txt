@@ -1,0 +1,20 @@
+Ex1.txt
+
+Case 1 = volatile counter
+Case 2 = nonvolatile counter
+
+--- Statistics for 1 processor ---
+
+| case	| counterVal	| minNumber	| maxNumber	| threads	| time	|
+| 1		| 300000		| 		| 		| 4			| 955us	|
+| 2		| 300000		| 		| 		| 4			| 998us	|
+| 1		| 300000		| 		| 		| 8			| 1972us|
+| 2		| 300000		| 		| 		| 8			| 1979us|
+
+--- Statistics for multiprocessor ---
+
+| case	| counterVal	| minNumber	| maxNumber	| threads	| time	|
+| 1		| 300000		| 74728		| 75336		| 4			| 955us	|
+| 2		| 300000		| 74802		| 75195		| 4			| 998us	|
+| 1		| 300000		| 37435		| 37547		| 8			| 1972us|
+| 2		| 300000		| 37309		| 37591		| 8			| 1979us|

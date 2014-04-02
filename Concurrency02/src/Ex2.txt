@@ -1,1 +1,25 @@
 Ex2.txt
+
+Peterson Algorithm pseudocode from labs page:
+
+lock() {
+	for (int L = 1; L < n; L++) {
+		level[i] = L;
+		victim[L] = i; 
+		while (( exists k != i with level[k] >= L ) &&
+			victim [L] == i ) {}; 
+	}
+}
+
+unlock() {
+	level[i] = 0;
+}
+
+The problem concerning fairness is the while loop. A thread can increment its level while being the victim. It can, therefore, overtake other threads.
+Example with 3 threads:
+Thread1 enters first level is victim.
+Thread2 enters first level and becomes victim.
+Thread3 enters first level becomes victim.
+Thread 3 enters while loop and realises that there are no threads in the higher levels. Therefore, it can overtake thread1 and thread 2 (if thread2 had made this check, it could also have overtaken, as it is no longer the victim). Therefore, it can happen, that thread1 gets "stuck".
+
+The algorithm could be enhanced as follows: There would need to be a sentinel watching the access to the counter. This sentinel would not let a specific thread, which has already been given access, advance, until all other threads have also been given access. This could, for example, be achieved by assigning an array with the total number of threads to each thread. Each entry would be set to 0 if the appropriate array has been given access.If all values have been set to 0, the thread may advance. It the thread has been / will be executed, all values are immediately set to 1.

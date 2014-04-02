@@ -3,12 +3,38 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Ex1Case2 {
 
-	private static int MAX = 30000;
+	private static int MAX = 300000;
 	
 	public static void main(String[] args) {
-		Ex1Case2 myCase = new Ex1Case2(4);
+		int n = 4;
+		if (args.length > 0)
+			n = Integer.parseInt(args[0]);
+		if (args.length > 1) { // if a second argument is passed, run in 1Proc mode
+			System.out.println("Args: "+args[0]+" "+args[1]);
+			setSolarisAffinity();
+		}
+		Ex1Case2 myCase = new Ex1Case2(n);
+		long startTime = System.nanoTime();
 		myCase.startThreads();
+		long endTime = System.nanoTime();
+		long duration = (endTime-startTime)/1000;
 		myCase.printFinalCounterValue();
+		System.out.println("Duration of thread execution: "+duration+"us");
+	}
+	
+	public static void setSolarisAffinity() {
+		try {
+			// retrieve process id
+			String pid_name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName(); 
+			String [] pid_array = pid_name.split("@");
+			int pid = Integer.parseInt( pid_array[0] );
+			// random processor
+			int processor = new java.util.Random().nextInt( 32 );
+			// Set process affinity to one processor (on Solaris) 
+			Process p = Runtime.getRuntime().exec("/usr/sbin/pbind -b "+processor+" "+pid);
+			p.waitFor();
+		} catch (Exception err) {
+			err.printStackTrace(); }
 	}
 
 	private int sharedCounter;
