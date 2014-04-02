@@ -1,28 +1,28 @@
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class Ex1Case1 {
+public class Ex1Case2 {
 
 	private static int MAX = 30000;
 	
 	public static void main(String[] args) {
-		Ex1Case1 myCase = new Ex1Case1(4);
+		Ex1Case2 myCase = new Ex1Case2(4);
 		myCase.startThreads();
 		myCase.printFinalCounterValue();
 	}
 
-	private volatile int sharedCounter;
+	private int sharedCounter;
 	private int privateCounters[];
 	private int threadNumber;
 	private CounterThread threadArray[];
 	private AtomicInteger  level[];
 	private AtomicInteger  victim[];
 	
-	public Ex1Case1() {
+	public Ex1Case2() {
 		this(4);
 	}
 	
-	public Ex1Case1(int n) {
+	public Ex1Case2(int n) {
 		this.sharedCounter = 0;
 		this.threadNumber = n;
 		//create thread and thread's counter, initialise them
@@ -88,37 +88,37 @@ public class Ex1Case1 {
 		}
 		
 		public void run() {
-			while(Ex1Case1.this.sharedCounter < MAX) {
+			while(Ex1Case2.this.sharedCounter < MAX) {
 				this.incrementCounter();
 			}
 			System.out.println("Final counter value of thread "
 					+ this.myNumber+":\t"
-					+ Ex1Case1.this.privateCounters[this.myNumber]);
+					+ Ex1Case2.this.privateCounters[this.myNumber]);
 		}
 		
 		private void incrementCounter() {
 			this.lockCounter();
-			if(Ex1Case1.this.sharedCounter < MAX) {
-				Ex1Case1.this.sharedCounter++;
-				Ex1Case1.this.privateCounters[this.myNumber]++;
+			if(Ex1Case2.this.sharedCounter < MAX) {
+				Ex1Case2.this.sharedCounter++;
+				Ex1Case2.this.privateCounters[this.myNumber]++;
 			}
 			this.unlockCounter();
 		}
 		
 		private void lockCounter() {
-			for (int L = 1; L < Ex1Case1.this.threadNumber; L++) {
-				Ex1Case1.this.level[this.myNumber].set(L);
-				Ex1Case1.this.victim[L].set(this.myNumber); 
+			for (int L = 1; L < Ex1Case2.this.threadNumber; L++) {
+				Ex1Case2.this.level[this.myNumber].set(L);
+				Ex1Case2.this.victim[L].set(this.myNumber); 
 				while 
-					(Ex1Case1.this.higherLevelThreadExists(L,this.myNumber)
-						&& Ex1Case1.this.victim[L].get() == this.myNumber) {
+					(Ex1Case2.this.higherLevelThreadExists(L,this.myNumber)
+						&& Ex1Case2.this.victim[L].get() == this.myNumber) {
 					yield();
 				}
 			}
 		}
 		
 		private void unlockCounter() {
-			Ex1Case1.this.level[this.myNumber].set(0);
+			Ex1Case2.this.level[this.myNumber].set(0);
 		}
 	}
 
