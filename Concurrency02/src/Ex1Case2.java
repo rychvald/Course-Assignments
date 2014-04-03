@@ -16,9 +16,9 @@ public class Ex1Case2 {
 		Ex1Case2 myCase = new Ex1Case2(n);
 		long startTime = System.nanoTime();
 		myCase.startThreads();
+		myCase.printFinalCounterValue();
 		long endTime = System.nanoTime();
 		long duration = (endTime-startTime)/1000;
-		myCase.printFinalCounterValue();
 		System.out.println("Duration of thread execution: "+duration+"us");
 	}
 	

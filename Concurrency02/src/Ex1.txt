@@ -5,16 +5,21 @@ Case 2 = nonvolatile counter
 
 --- Statistics for 1 processor ---
 
-| case	| counterVal	| minNumber	| maxNumber	| threads	| time	|
-| 1		| 300000		| 		| 		| 4			| 955us	|
-| 2		| 300000		| 		| 		| 4			| 998us	|
-| 1		| 300000		| 		| 		| 8			| 1972us|
-| 2		| 300000		| 		| 		| 8			| 1979us|
+| case	| counterVal	| minNumber	| maxNumber	| threads	| time			|
+| 1		| 300000		| 67530		| 83726		| 4			| 2776237718us	|
+| 2		| 300000		| 62418		| 87207		| 4			| 3628723078us	|
+| 1		| 300000		| 28630		| 92751		| 8			| 2083475039us	|
+| 2		| 300000		| 27901		| 90919		| 8			| 4044932122us	|
 
 --- Statistics for multiprocessor ---
 
-| case	| counterVal	| minNumber	| maxNumber	| threads	| time	|
-| 1		| 300000		| 74728		| 75336		| 4			| 955us	|
-| 2		| 300000		| 74802		| 75195		| 4			| 998us	|
-| 1		| 300000		| 37435		| 37547		| 8			| 1972us|
-| 2		| 300000		| 37309		| 37591		| 8			| 1979us|
+| case	| counterVal	| minNumber	| maxNumber	| threads	| time		|
+| 1		| 300000		| 74190		| 75494		| 4			| 313523us	|
+| 2		| 300000		| 74455		| 75266		| 4			| 302977us	|
+| 1		| 300000		| 37260		| 37619		| 8			| 524330us	|
+| 2		| 300000		| 37375		| 37607		| 8			| 507897us	|
+
+Interpretation:
+We see that in a multiprocessor environment, when using a volatile counter, the execution time is slightly larger. This is most probably due to the fact, that volatile counters are written down into main memory, while nonvolatile counters are cached.
+In the case of a single processor environment, we see that it is exactly the other way round. This is interesting, as we would expect the same effects as in the multiprocessor environment. Possible answers could be the handling of the java memory model and compiler issues on a uniprocessor system: For example, we know that the JVM realises whether it runs on one or multiple processors and reacts accordingly (be not locking variables), on the other hand the JVM also reacts to processor optimisations and mechanisms for locking, which are present on the SPARC system. These two issues probably influence and "optimise" the time for the volatile variable.  
+Concerning fairness, we see that the multiprocessor environment seems to enhance more or less fair execution, while in the uniprocessor environment the maximum and minimum number of thread accesses to the counter seems to differ strongly. The reason may be that in a single processor environment the threads cannot run individually but only sequentially. Hence, scenarios of one processor overtaking another while that process is "sleeping" on the one hand and "locked" processes which wait and cannot proceed because another process needs to free the lock first may occur (see Ex2). In a multiprocessor environment, on the other hand, the threads are really executed in parallel and therefore overtaking should occur less often.

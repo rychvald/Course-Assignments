@@ -1,2 +1,13 @@
 Ex3.txt
 
+--- Figure1 ---
+Linearisability: We see that r.write(1) can be executed before r.read(1) even starts to read. Therefore, this part is linearisable. if we look further, we can execute r.write(2) in after r.read(1) is executed. Only hereafter, r.read(2) can be executed. Therefore, we have a valid order and this figure is linearisable..
+Sequential Consistency: As Figure1 is linearisable, it is also sequentally consistent.
+
+--- Figure2 ---
+Linearisability:  Again, in the overlapping parts we can choose the order of events. We find: 
+r.write(1);r.write(2);r.read(2);r.read(1) -> illegal! r has overwritten 1 with 2
+r.write(2);r.write(1);r.read(2); -> illegal! r has overwritten 2 with 1
+r.write(1);r.read(2); -> illegal! r has written 1 not 2
+Therefore, this figure is not linearisable.
+Sequential consistency: we can reorder not overlapping events that occur in different threads. However, this will not give us any sensible result, as we cannot move r.read(1) so that it occurs before r.write(1). This is due to the fact that we cannot reorder events that occur in the same thread. Hence, Figure2 is also not sequentially consistent.
