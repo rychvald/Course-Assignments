@@ -4,7 +4,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 
-public class CASLock implements Lock {
+public class CCASLock implements Lock {
 
 	@Override
 	public void lockInterruptibly() throws InterruptedException {
@@ -38,6 +38,16 @@ public class CASLock implements Lock {
 		while (this.lock.compareAndSet(1, 1)) {
 			continue;
 		}
+		boolean check = true;
+		while(check) {
+			while(this.lock.get() == 1) {
+				continue;
+			}
+			if (!this.lock.compareAndSet(1, 1)) {
+				check = false;
+			}
+		}
+		
 	}
 
 	@Override
@@ -51,7 +61,7 @@ public class CASLock implements Lock {
 		int n = 4;
 		if (args.length > 0)
 			n = Integer.parseInt(args[0]);
-		CASLock myCase = new CASLock(n);
+		CCASLock myCase = new CCASLock(n);
 		long startTime = System.nanoTime();
 		myCase.startThreads();
 		myCase.printFinalCounterValue();
@@ -67,11 +77,11 @@ public class CASLock implements Lock {
 	private AtomicInteger  level[];
 	private AtomicInteger  victim[];
 	
-	public CASLock() {
+	public CCASLock() {
 		this(4);
 	}
 	
-	public CASLock(int n) {
+	public CCASLock(int n) {
 		this.lock = new AtomicInteger(0);
 		this.sharedCounter = 0;
 		this.threadNumber = n;
@@ -136,21 +146,21 @@ public class CASLock implements Lock {
 		}
 		
 		public void run() {
-			while(CASLock.this.sharedCounter < MAX) {
+			while(CCASLock.this.sharedCounter < MAX) {
 				this.incrementCounter();
 			}
 			System.out.println("Final counter value of thread "
 					+ this.myNumber+":\t"
-					+ CASLock.this.privateCounters[this.myNumber]);
+					+ CCASLock.this.privateCounters[this.myNumber]);
 		}
 		
 		private void incrementCounter() {
-			CASLock.this.lock();
-			if(CASLock.this.sharedCounter < MAX) {
-				CASLock.this.sharedCounter++;
-				CASLock.this.privateCounters[this.myNumber]++;
+			CCASLock.this.lock();
+			if(CCASLock.this.sharedCounter < MAX) {
+				CCASLock.this.sharedCounter++;
+				CCASLock.this.privateCounters[this.myNumber]++;
 			}
-			CASLock.this.unlock();
+			CCASLock.this.unlock();
 		}
 	}
 
