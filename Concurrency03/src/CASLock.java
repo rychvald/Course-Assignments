@@ -35,7 +35,7 @@ public class CASLock implements Lock {
 
 	@Override
 	public void lock() {
-		while (this.lock.compareAndSet(1, 1)) {
+		while (!this.lock.compareAndSet(0, 1)) {
 			continue;
 		}
 	}
@@ -64,8 +64,6 @@ public class CASLock implements Lock {
 	private int privateCounters[];
 	private int threadNumber;
 	private CounterThread threadArray[];
-	private AtomicInteger  level[];
-	private AtomicInteger  victim[];
 	
 	public CASLock() {
 		this(4);
@@ -80,18 +78,6 @@ public class CASLock implements Lock {
 		for( int i = 0 ; i < this.threadNumber ; i++) {
 			threadArray[i] = new CounterThread(i);
 			privateCounters[i] = 0;
-		}
-		this.initPetersonArrays();
-	}
-	
-	private void initPetersonArrays() {
-		this.level = new AtomicInteger[this.threadNumber];
-		this.victim = new AtomicInteger[this.threadNumber];
-		for( int i = 0 ; i < this.threadNumber ; i++) {
-			this.level[i] = new AtomicInteger(0);
-		}
-		for( int i = 0 ; i < this.threadNumber ; i++) {
-			this.victim[i] = new AtomicInteger(0);
 		}
 	}
 	
@@ -115,17 +101,6 @@ public class CASLock implements Lock {
 		System.out.println("Sum of counter accesses: " + sum);
 	}
 	
-	public boolean higherLevelThreadExists(int level, int thread) {
-		boolean retVal = false;
-		for( int i = 0 ; i < this.threadNumber ; i++) {
-			if(i != thread && this.level[i].get() >= level) {
-				retVal = true;
-				break;
-			}
-		}
-		return retVal;
-	}
-	
 	public class CounterThread extends Thread {
 		
 		private int myNumber;
@@ -138,6 +113,7 @@ public class CASLock implements Lock {
 		public void run() {
 			while(CASLock.this.sharedCounter < MAX) {
 				this.incrementCounter();
+				yield();
 			}
 			System.out.println("Final counter value of thread "
 					+ this.myNumber+":\t"
