@@ -120,6 +120,7 @@ public class CCASLock implements Lock {
 		public void run() {
 			while(CCASLock.this.sharedCounter < MAX) {
 				this.incrementCounter();
+				yield();
 			}
 			System.out.println("Final counter value of thread "
 					+ this.myNumber+":\t"
