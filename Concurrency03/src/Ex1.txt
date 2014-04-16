@@ -29,3 +29,9 @@ Case 2 = nonvolatile counter
 | 2		| 300000		| 74455		| 75266		| 4			| 302977us	|
 | 1		| 300000		| 37260		| 37619		| 8			| 524330us	|
 | 2		| 300000		| 37375		| 37607		| 8			| 507897us	|
+
+
+******** Interpretation ********
+
+In general, the execution time for the multiprocessor environment is better when using CAS and CCAS opposed to Peterson's Algorithm. This is as expected, as CAS and CCAS have a simpler implementation, avoiding mechanisms such as filters etc and only use an atomic operation on an Integer. If we compare CCAS to CAS, we see that CCAS performs better in the case of 4 threads. This is as we would expect, as the motivation for CCAS is to enhance the time of CAS. In the case of eight threads, however, the execution time of CAS is better than that of CCAS. This does also not seem to be an exception. A reason could be that with CCAS lock the number of atomic operations on the AtomicInteger is doubled in the lock() method. Therefore, the throughput decreases.
+If we look at the fairness, we see that CAS seems to be a bit fairer than CCAS. Furthermore, we can see that Peterson's Algorithm is even fairer. 
