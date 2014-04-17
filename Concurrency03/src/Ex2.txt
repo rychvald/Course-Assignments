@@ -1,0 +1,16 @@
+Ex2.txt
+
+******** Results of Exercise 2 ********
+
+| case	| threads	| avg time		|
+| NoLock| 2			| 5774886us		|
+| Single| 2			| 3268919us		|
+| Single| 4			| 385581.3us	|
+| Single| 8			| 255113.6us	|
+| Double| 2			| 2864517.3us	|
+| Double| 4			| 188754.6us	|
+| Double| 8			| 205157us		|
+
+Interpretations on performance:
+We see that the worst time is achieved with no lock at all. This is probably due to the fact that a lot of time is lost waiting for enqueues to be done when we want to dequeue and vice versa. 
+Also it is interesting to see for the results using locks, that the time needed for two threads is significantly larger than the time needed for four threads. In the case of a signle thread the time decreases even more for eight threads. One explenation is, that the waiting times for the queue to be filled / emptied when wanting to do an enq or deq respectively, is far smaller and therefore the execution becomes faster. 
