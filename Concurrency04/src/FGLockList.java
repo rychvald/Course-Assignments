@@ -30,26 +30,6 @@ public class FGLockList {
 		}
 	}
 	
-	public void remove(int i) {
-		Node predecessor = null, current = null;
-		try{
-			predecessor = this.getPredecessor(i);
-			predecessor.lock();
-			current = predecessor.successor;
-			if(current != null)
-				current.lock();
-			if (current.value() == i) {
-				predecessor.successor = current.successor;
-				current.successor = null;
-			}
-		} finally {
-			if(predecessor != null)
-				predecessor.unlock();
-			if(current != null)
-				current.unlock();
-		}
-	}
-	
 	public Node getPredecessor(int i) {
 		System.out.println("Getting predecessor for "+i);
 		Node currentNode = this.head;
@@ -59,6 +39,29 @@ public class FGLockList {
 			currentNode = previousNode.successor;
 		}
 		return previousNode;
+	}
+	
+	public boolean remove(int i) {
+		Node predecessor = null, current = null;
+		System.out.println("Removing node "+i);
+		try{
+			predecessor = this.head;
+			predecessor.lock();
+			current = this.head.successor;
+			current.lock();
+			while(current.value() <= i && current != this.tail) {
+				if (current.value() == i) {
+					predecessor.successor = current.successor;
+					return true;
+				}
+				current.unlock();
+				predecessor.unlock();
+			}
+			return false;
+		} finally {
+			predecessor.unlock();
+			current.unlock();
+		}
 	}
 	
 	public class Node implements Lock{
