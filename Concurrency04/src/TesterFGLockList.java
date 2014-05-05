@@ -1,11 +1,9 @@
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Random;
 
 public class TesterFGLockList {
 	
 	public static void main(String[] args) {
-		int n = 4;
+		int n = 2;
 		if (args.length > 0)
 			n = Integer.parseInt(args[0]);
 		TesterFGLockList myCase = new TesterFGLockList(n);
@@ -18,61 +16,57 @@ public class TesterFGLockList {
 	}
 
 	private FGLockList list;
-	private HashSet<Integer> numberSet;
 	private int threadNumber;
-	private AddThread[] threadArray;
+	private AddThread[] addThreadArray;
+	private RemoveThread[] removeThreadArray;
 	
 	public TesterFGLockList() {
-		this(4);
+		this(2);
 	}
 	
 	public TesterFGLockList(int n) {
 		assert n%2 == 0;
 		this.threadNumber = n/2;
-		this.numberSet = new HashSet<Integer>();
-		this.fillSet(this.numberSet);
+		this.list = new FGLockList();
 		this.createThreads();
 	}
 	
-	private void fillSet(HashSet<Integer> set){
+	private Integer[] createNumberArray(int size){
 		Random generator = new Random();
-		for(int i = 0 ; i < 100000 ; i++) {
+		Integer[] intArray = new Integer[size];
+		for(int i = 0 ; i < size ; i++) {
 			Integer number = generator.nextInt();
 			number = number % 101;
-			set.add(number);
+			number = Math.abs(number);
+			intArray[i] = number;
 			System.out.println(i);
 		}
+		return intArray;
 	}
 	
 	private void createThreads() {
-		this.threadArray = new AddThread[2*this.threadNumber];
-		int setSize = 50000 / this.threadNumber;
-		System.out.println("Each thread will get "+setSize+" numbers");
-		Iterator<Integer> setIterator = this.numberSet.iterator();
-		for(int i = 0 ; i < this.threadNumber ; i=i+2) {
-			HashSet<Integer> addThreadSet = new HashSet<Integer>(), removeThreadSet = new HashSet<Integer>();
-			for(int h = 0 ; h < setSize ; h++) {
-				System.out.println(h);
-				assert setIterator.hasNext();
-				addThreadSet.add(setIterator.next());
-				assert setIterator.hasNext();
-				removeThreadSet.add(setIterator.next());
-			}
-			this.threadArray[i] = new AddThread(addThreadSet);
-			this.threadArray[i+1] = new RemoveThread(removeThreadSet);
+		this.addThreadArray = new AddThread[this.threadNumber];
+		this.removeThreadArray = new RemoveThread[this.threadNumber];
+		int arraySize = 100000 / this.threadNumber;
+		System.out.println("Each thread will get "+arraySize+" numbers");
+		for(int i = 0 ; i < this.threadNumber ; i++) {
+			this.addThreadArray[i] = new AddThread(this.createNumberArray(arraySize));
+			this.removeThreadArray[i] = new RemoveThread(this.createNumberArray(arraySize));
 		}
 	}
 	
 	public void startThreads() {
-		for( int i = 0 ; i < (2*this.threadNumber) ; i++) {
-			this.threadArray[i].start();
+		for( int i = 0 ; i < (this.threadNumber) ; i++) {
+			this.addThreadArray[i].start();
+			this.removeThreadArray[i].start();
 		}
 	}
 	
 	private void waitForEnd() {
-		for(int i = 0 ; i < (2*this.threadNumber) ; i++) {
+		for(int i = 0 ; i < (this.threadNumber) ; i++) {
 			try {
-				this.threadArray[i].join();
+				this.addThreadArray[i].join();
+				this.removeThreadArray[i].join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -81,34 +75,46 @@ public class TesterFGLockList {
 	
 	public class AddThread extends Thread {
 		
-		private HashSet<Integer> mySet;
+		private Integer[] myArray;
 		
-		public AddThread(HashSet<Integer> set) {
+		public AddThread(Integer[] array) {
 			super();
-			this.mySet = set;
+			this.myArray = array;
 		}
 		
 		public void run() {
-			for(Iterator<Integer> i = mySet.iterator() ; i.hasNext();){
-				this.manipulateList(i.next());
+			for(int i = 0 ; i < myArray.length ; i++){
+				this.manipulateList(myArray[i]);
+				yield();
 			}
-			System.out.println("Thread finished removing numbers");
+			System.out.println("Thread finished adding numbers");
 		}
 		
-		private void manipulateList(Integer i) {
-			System.out.println("Thread is removing number: "+i);
+		public void manipulateList(Integer i) {
+			//System.out.println("Thread is adding number: "+i);
 			TesterFGLockList.this.list.add(i);
 		}
 	}
 	
-	public class RemoveThread extends AddThread {
+	public class RemoveThread extends Thread {
 
-		public RemoveThread(HashSet<Integer> set) {
-			super(set);
+		private Integer[] myArray;
+		
+		public RemoveThread(Integer[] array) {
+			super();
+			this.myArray = array;
+		}
+		
+		public void run() {
+			for(int i = 0 ; i < myArray.length ; i++){
+				this.manipulateList(myArray[i]);
+				yield();
+			}
+			System.out.println("Thread finished removing numbers");
 		}
 		
 		public void manipulateList(Integer i) {
-			System.out.println("Thread is removing number: "+i);
+			//System.out.println("Thread is removing number: "+i);
 			TesterFGLockList.this.list.remove(i);
 		}
 	}

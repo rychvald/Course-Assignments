@@ -1,3 +1,5 @@
+import java.util.concurrent.locks.ReentrantLock;
+
 
 public class FGLockList {
 
@@ -32,7 +34,10 @@ public class FGLockList {
 			predecessor.lock();
 			current = predecessor.successor;
 			current.lock();
-			predecessor.successor = current.successor;
+			if (current.value() == i) {
+				predecessor.successor = current.successor;
+				current.successor = null;
+			}
 		} finally {
 			predecessor.unlock();
 			current.unlock();
@@ -52,12 +57,12 @@ public class FGLockList {
 	public class Node {
 		private int value;
 		public volatile Node successor;
-		private volatile boolean locked;
+		private volatile ReentrantLock lock;
 		
 		public Node(int i){
 			this.value = i;
 			this.successor = null;
-			this.locked = false;
+			this.lock = new ReentrantLock();
 		}
 		
 		public int value() {
@@ -65,14 +70,11 @@ public class FGLockList {
 		}
 		
 		public synchronized void lock() {
-			while(this.locked) {
-				Thread.yield();
-			}
-			this.locked = true;
+			this.lock.lock();
 		}
 		
 		public synchronized void unlock() {
-			this.locked = false;
+			this.lock.unlock();
 		}
 	}
 	
