@@ -3,12 +3,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-
-public class FGLockList {
+public class OptimisticFGLockList {
 
 	private Node head,tail;
 	
-	public FGLockList() {
+	public OptimisticFGLockList() {
 		this.head = new Node(-1);
 		this.tail = new Node(101);
 		this.head.successor = this.tail;
@@ -17,16 +16,27 @@ public class FGLockList {
 	public void add(int i) {
 		Node predecessor = null, successor = null;
 		Node newNode = new Node(i);
+		boolean goOn = true , goOn2 = true;
 		try{
-			predecessor = this.head;
-			predecessor.lock();
-			successor = predecessor.successor;
-			successor.lock();
-			while(successor.value() < i && successor != this.tail) {
-				predecessor.unlock();
-				predecessor = successor;
-				successor = successor.successor;
+			while(goOn2) {
+				while(goOn) {
+					predecessor = this.head;
+					successor = predecessor.successor;
+					while(successor.value() < i) {
+						if (successor.value() == i)
+							goOn = false;
+						predecessor = successor;
+						successor = successor.successor;
+					}
+				}
+				predecessor.lock();
 				successor.lock();
+				if (this.validate(predecessor , successor))
+						goOn2 = false;
+				else {
+					predecessor.unlock();
+					successor.unlock();
+				}
 			}
 			predecessor.successor = newNode;
 			newNode.successor = successor;
@@ -41,28 +51,44 @@ public class FGLockList {
 	public boolean remove(int i) {
 		Node predecessor = null, current = null;
 		//System.out.println("Removing node "+i);
-		try{
+		boolean goOn = true;
+		while(goOn) {
 			predecessor = this.head;
-			predecessor.lock();
 			current = predecessor.successor;
+			while(current.value() <= i) {
+				if (current.value() == i)
+					goOn = false;
+				predecessor = current;
+				current = current.successor;
+			}
+		}
+		try{
+			predecessor.lock();
 			current.lock();
-			while(current.value() <= i && current != this.tail) {
+			if (this.validate(predecessor , current)) {
 				if (current.value() == i) {
 					predecessor.successor = current.successor;
 					return true;
-				}
-				predecessor.unlock();
-				predecessor = current;
-				current = current.successor;
-				current.lock();
-			}
-			return false;
+				} else
+					return false;
+			} else
+				return false;
 		} finally {
-			if (current != null)
-				current.unlock();
 			if (predecessor != null)
 				predecessor.unlock();
+			if (current != null)
+				current.unlock();
 		}
+	}
+	
+	private boolean validate (Node predecessor , Node current) {
+		Node node = this.head;
+		while(node.value() <= predecessor.value()) {
+			if (node == predecessor)
+				return (predecessor.successor == current);
+			node = node.successor;
+		}
+		return false;
 	}
 	
 	public class Node implements Lock{

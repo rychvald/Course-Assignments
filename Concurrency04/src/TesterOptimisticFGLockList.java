@@ -1,13 +1,13 @@
 import java.util.Random;
 
-public class TesterFGLockList {
+public class TesterOptimisticFGLockList {
 	
 	public static void main(String[] args) {
 		int n = 2;
 		if (args.length > 0)
 			n = Integer.parseInt(args[0]);
 		System.out.println("Executing with "+n+" threads");
-		TesterFGLockList myCase = new TesterFGLockList(n);
+		TesterOptimisticFGLockList myCase = new TesterOptimisticFGLockList(n);
 		long startTime = System.nanoTime();
 		myCase.startThreads();
 		myCase.waitForEnd();
@@ -21,11 +21,11 @@ public class TesterFGLockList {
 	private AddThread[] addThreadArray;
 	private RemoveThread[] removeThreadArray;
 	
-	public TesterFGLockList() {
+	public TesterOptimisticFGLockList() {
 		this(2);
 	}
 	
-	public TesterFGLockList(int n) {
+	public TesterOptimisticFGLockList(int n) {
 		assert n%2 == 0;
 		this.threadNumber = n/2;
 		this.list = new FGLockList();
@@ -93,7 +93,7 @@ public class TesterFGLockList {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is adding number: "+i);
-			TesterFGLockList.this.list.add(i);
+			TesterOptimisticFGLockList.this.list.add(i);
 		}
 	}
 	
@@ -116,7 +116,7 @@ public class TesterFGLockList {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is removing number: "+i);
-			TesterFGLockList.this.list.remove(i);
+			TesterOptimisticFGLockList.this.list.remove(i);
 		}
 	}
 }

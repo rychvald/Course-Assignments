@@ -1,0 +1,12 @@
+Assignment4 results of the tests
+
+| Algorithm 	| Threads 	| time 		|
+| standard		| 2			| 9053865us	|
+| standard		| 4			| 4761025us	|
+| standard		| 8			| 2289056us	|
+| optimistic	| 2			| 8651231us	|
+| optimistic	| 4			| 4907084us	|
+| optimistic	| 8			| 2309115us	|
+
+Remarks:
+We see that the standard algorithm performs faster for 4 and 8 threads. This is probably because retraversing the list takes a longer time than waiting for acquiring a lock. On the other hand, for only 2 threads, the optimistic approach performs better than the standard approach. In the case of a low number of threads Ð and therefore a lower number of retraversals of the list Ð the time used for retraversal seems to be smaller than the time spent on waiting for other locks to be released.
