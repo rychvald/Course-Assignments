@@ -48,7 +48,7 @@ public class TesterFGLockList {
 	private void createThreads() {
 		this.addThreadArray = new AddThread[this.threadNumber];
 		this.removeThreadArray = new RemoveThread[this.threadNumber];
-		int arraySize = 100000 / (2*this.threadNumber);
+		int arraySize = 50000 / this.threadNumber;
 		System.out.println("Each thread will get "+arraySize+" numbers");
 		for(int i = 0 ; i < this.threadNumber ; i++) {
 			this.addThreadArray[i] = new AddThread(this.createNumberArray(arraySize));

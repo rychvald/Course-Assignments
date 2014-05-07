@@ -16,7 +16,7 @@ public class TesterOptimisticFGLockList {
 		System.out.println("Duration of thread execution: "+duration+"us");
 	}
 
-	private FGLockList list;
+	private OptimisticFGLockList list;
 	private int threadNumber;
 	private AddThread[] addThreadArray;
 	private RemoveThread[] removeThreadArray;
@@ -28,7 +28,7 @@ public class TesterOptimisticFGLockList {
 	public TesterOptimisticFGLockList(int n) {
 		assert n%2 == 0;
 		this.threadNumber = n/2;
-		this.list = new FGLockList();
+		this.list = new OptimisticFGLockList();
 		this.createThreads();
 	}
 	

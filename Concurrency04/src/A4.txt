@@ -1,12 +1,13 @@
 Assignment4 results of the tests
 
 | Algorithm 	| Threads 	| time 		|
-| standard		| 2			| 9053865us	|
-| standard		| 4			| 4761025us	|
-| standard		| 8			| 2289056us	|
-| optimistic	| 2			| 8651231us	|
-| optimistic	| 4			| 4907084us	|
-| optimistic	| 8			| 2309115us	|
+| standard		| 2			| 283141us	|
+| standard		| 4			| 170229us	|
+| standard		| 8			| 125714us	|
+| optimistic	| 2			| 212726us	|
+| optimistic	| 4			| 137563us	|
+| optimistic	| 8			| 123168us	|
 
 Remarks:
-We see that the standard algorithm performs faster for 4 and 8 threads. This is probably because retraversing the list takes a longer time than waiting for acquiring a lock. On the other hand, for only 2 threads, the optimistic approach performs better than the standard approach. In the case of a low number of threads Ð and therefore a lower number of retraversals of the list Ð the time used for retraversal seems to be smaller than the time spent on waiting for other locks to be released.
+We see that the time is generally better for optimistic fine-grained locking that for fine-grained locking, as expected. Furthermore, we see that the time decreases for both types as the number of threads increases. This shows that when the work (adding, removing) is done in parallel it gets faster than when the same amount of numbers is added / removed sequentially. This is as expected.
+However, we also see, that the time difference between the "standard" and the optimistic approach gets smaller as the number of threads increases. This is probably because, as the number of threads increase, the added number of retraversals gets more and more similar to the amount of work / time saved by not locking the nodes if not needed. 

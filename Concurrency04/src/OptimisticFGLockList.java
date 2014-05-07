@@ -14,65 +14,77 @@ public class OptimisticFGLockList {
 	}
 	
 	public void add(int i) {
+		if(this.contains(i))
+			return;
 		Node predecessor = null, successor = null;
 		Node newNode = new Node(i);
-		boolean goOn = true , goOn2 = true;
+		newNode.lock();
+		boolean goOn = true;
+		//System.out.println("Adding node "+i);
 		try{
-			while(goOn2) {
-				while(goOn) {
-					predecessor = this.head;
-					successor = predecessor.successor;
-					while(successor.value() < i) {
-						if (successor.value() == i)
-							goOn = false;
-						predecessor = successor;
-						successor = successor.successor;
-					}
+			while(goOn) {
+				predecessor = this.head;
+				successor = predecessor.successor;
+				while(successor.value() < i) {
+					predecessor = successor;
+					successor = successor.successor;
 				}
+				if (successor.value() == i)
+					return;
 				predecessor.lock();
 				successor.lock();
 				if (this.validate(predecessor , successor))
-						goOn2 = false;
+						goOn = false;
 				else {
 					predecessor.unlock();
 					successor.unlock();
 				}
 			}
-			predecessor.successor = newNode;
-			newNode.successor = successor;
+			if (predecessor.successor.value() > i) {
+				newNode.successor = successor;
+				predecessor.successor = newNode;
+			}
 		} finally {
 			if (predecessor != null)
 				predecessor.unlock();
 			if (successor != null)
 				successor.unlock();
+			if (newNode != null)
+				newNode.unlock();
 		}
 	}
 	
 	public boolean remove(int i) {
+		if (!this.contains(i))
+			return false;
 		Node predecessor = null, current = null;
 		//System.out.println("Removing node "+i);
-		boolean goOn = true;
+		boolean goOn = true , retVal = false;
 		while(goOn) {
 			predecessor = this.head;
 			current = predecessor.successor;
 			while(current.value() <= i) {
-				if (current.value() == i)
-					goOn = false;
+				if (current.value() >= i) {
+					break;
+				}
 				predecessor = current;
 				current = current.successor;
 			}
+			if (current.value() >= i)
+				goOn = false;
 		}
+		if (current.value() != i)
+			return false;
 		try{
 			predecessor.lock();
 			current.lock();
 			if (this.validate(predecessor , current)) {
 				if (current.value() == i) {
 					predecessor.successor = current.successor;
-					return true;
-				} else
-					return false;
-			} else
-				return false;
+					retVal = true;
+				}
+			} 
+			return retVal;
 		} finally {
 			if (predecessor != null)
 				predecessor.unlock();
@@ -91,10 +103,23 @@ public class OptimisticFGLockList {
 		return false;
 	}
 	
+	public boolean contains(int i) {
+		Node current = this.head;
+		boolean retVal = false;
+		while(current != this.tail) {
+			if (current.value() == i) {
+				retVal = true;
+				break;
+			}
+			current = current.successor;
+		}
+		return retVal;
+	}
+	
 	public class Node implements Lock{
 		private int value;
 		public volatile Node successor;
-		AtomicInteger lock;
+		private AtomicInteger lock;
 		
 		public Node(int i){
 			this.value = i;

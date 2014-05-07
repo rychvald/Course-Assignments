@@ -15,8 +15,11 @@ public class FGLockList {
 	}
 	
 	public void add(int i) {
+		if (this.contains(i))
+			return;
 		Node predecessor = null, successor = null;
 		Node newNode = new Node(i);
+		newNode.lock();
 		try{
 			predecessor = this.head;
 			predecessor.lock();
@@ -28,19 +31,26 @@ public class FGLockList {
 				successor = successor.successor;
 				successor.lock();
 			}
-			predecessor.successor = newNode;
-			newNode.successor = successor;
+			if (successor.value() != i) {
+				newNode.successor = successor;
+				predecessor.successor = newNode;
+			}
 		} finally {
 			if (predecessor != null)
 				predecessor.unlock();
 			if (successor != null)
 				successor.unlock();
+			if (newNode != null)
+				newNode.unlock();
 		}
 	}
 	
 	public boolean remove(int i) {
+		if(!this.contains(i))
+			return false;
 		Node predecessor = null, current = null;
 		//System.out.println("Removing node "+i);
+		boolean retVal = false;
 		try{
 			predecessor = this.head;
 			predecessor.lock();
@@ -49,14 +59,14 @@ public class FGLockList {
 			while(current.value() <= i && current != this.tail) {
 				if (current.value() == i) {
 					predecessor.successor = current.successor;
-					return true;
+					retVal = true;
 				}
 				predecessor.unlock();
 				predecessor = current;
 				current = current.successor;
 				current.lock();
 			}
-			return false;
+			return retVal;
 		} finally {
 			if (current != null)
 				current.unlock();
@@ -65,10 +75,24 @@ public class FGLockList {
 		}
 	}
 	
+	public boolean contains(int i) {
+		Node current = this.head;
+		boolean retVal = false;
+		if (current.successor == this.tail || current.successor == null)
+			return false;
+		while(current.successor != this.tail) {
+			if (current.value() == i) {
+				retVal = true;
+			}
+			current = current.successor;
+		}
+		return retVal;
+	}
+	
 	public class Node implements Lock{
 		private int value;
 		public volatile Node successor;
-		AtomicInteger lock;
+		private AtomicInteger lock;
 		
 		public Node(int i){
 			this.value = i;
