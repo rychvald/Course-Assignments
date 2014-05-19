@@ -1,13 +1,13 @@
 import java.util.Random;
 
-public class TesterFGLockList {
+public class TesterUnboundedLockBasedQueue {
 	
 	public static void main(String[] args) {
 		int n = 2;
 		if (args.length > 0)
 			n = Integer.parseInt(args[0]);
 		System.out.println("Executing with "+n+" threads");
-		TesterFGLockList myCase = new TesterFGLockList(n);
+		TesterUnboundedLockBasedQueue myCase = new TesterUnboundedLockBasedQueue(n);
 		long startTime = System.nanoTime();
 		myCase.startThreads();
 		myCase.waitForEnd();
@@ -16,19 +16,19 @@ public class TesterFGLockList {
 		System.out.println("Duration of thread execution: "+duration+"us");
 	}
 
-	private FGLockList list;
+	private UnboundedLockBasedQueue list;
 	private int threadNumber;
 	private AddThread[] addThreadArray;
 	private RemoveThread[] removeThreadArray;
 	
-	public TesterFGLockList() {
+	public TesterUnboundedLockBasedQueue() {
 		this(2);
 	}
 	
-	public TesterFGLockList(int n) {
+	public TesterUnboundedLockBasedQueue(int n) {
 		assert n%2 == 0;
 		this.threadNumber = n/2;
-		this.list = new FGLockList();
+		this.list = new UnboundedLockBasedQueue();
 		this.createThreads();
 	}
 	
@@ -93,7 +93,7 @@ public class TesterFGLockList {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is adding number: "+i);
-			TesterFGLockList.this.list.add(i);
+			TesterUnboundedLockBasedQueue.this.list.add(i);
 		}
 	}
 	
@@ -116,7 +116,7 @@ public class TesterFGLockList {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is removing number: "+i);
-			TesterFGLockList.this.list.remove(i);
+			TesterUnboundedLockBasedQueue.this.list.remove(i);
 		}
 	}
 }
