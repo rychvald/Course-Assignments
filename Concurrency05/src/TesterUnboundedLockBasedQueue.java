@@ -16,7 +16,7 @@ public class TesterUnboundedLockBasedQueue {
 		System.out.println("Duration of thread execution: "+duration+"us");
 	}
 
-	private UnboundedLockBasedQueue list;
+	private UnboundedLockBasedQueue queue;
 	private int threadNumber;
 	private AddThread[] addThreadArray;
 	private RemoveThread[] removeThreadArray;
@@ -28,7 +28,7 @@ public class TesterUnboundedLockBasedQueue {
 	public TesterUnboundedLockBasedQueue(int n) {
 		assert n%2 == 0;
 		this.threadNumber = n/2;
-		this.list = new UnboundedLockBasedQueue();
+		this.queue = new UnboundedLockBasedQueue();
 		this.createThreads();
 	}
 	
@@ -37,8 +37,6 @@ public class TesterUnboundedLockBasedQueue {
 		Integer[] intArray = new Integer[size];
 		for(int i = 0 ; i < size ; i++) {
 			Integer number = generator.nextInt();
-			number = number % 101;
-			number = Math.abs(number);
 			intArray[i] = number;
 			//System.out.println(i);
 		}
@@ -93,7 +91,7 @@ public class TesterUnboundedLockBasedQueue {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is adding number: "+i);
-			TesterUnboundedLockBasedQueue.this.list.add(i);
+			TesterUnboundedLockBasedQueue.this.queue.enq(i);
 		}
 	}
 	
@@ -116,7 +114,7 @@ public class TesterUnboundedLockBasedQueue {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is removing number: "+i);
-			TesterUnboundedLockBasedQueue.this.list.remove(i);
+			TesterUnboundedLockBasedQueue.this.queue.deq();
 		}
 	}
 }

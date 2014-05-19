@@ -1,13 +1,13 @@
 import java.util.Random;
 
-public class TesterOptimisticFGLockList {
+public class TesterUnboundedLockFreeQueue {
 	
 	public static void main(String[] args) {
 		int n = 2;
 		if (args.length > 0)
 			n = Integer.parseInt(args[0]);
 		System.out.println("Executing with "+n+" threads");
-		TesterOptimisticFGLockList myCase = new TesterOptimisticFGLockList(n);
+		TesterUnboundedLockFreeQueue myCase = new TesterUnboundedLockFreeQueue(n);
 		long startTime = System.nanoTime();
 		myCase.startThreads();
 		myCase.waitForEnd();
@@ -16,19 +16,19 @@ public class TesterOptimisticFGLockList {
 		System.out.println("Duration of thread execution: "+duration+"us");
 	}
 
-	private OptimisticFGLockList list;
+	private UnboundedLockFreeQueue queue;
 	private int threadNumber;
 	private AddThread[] addThreadArray;
 	private RemoveThread[] removeThreadArray;
 	
-	public TesterOptimisticFGLockList() {
+	public TesterUnboundedLockFreeQueue() {
 		this(2);
 	}
 	
-	public TesterOptimisticFGLockList(int n) {
+	public TesterUnboundedLockFreeQueue(int n) {
 		assert n%2 == 0;
 		this.threadNumber = n/2;
-		this.list = new OptimisticFGLockList();
+		this.queue = new UnboundedLockFreeQueue();
 		this.createThreads();
 	}
 	
@@ -37,8 +37,6 @@ public class TesterOptimisticFGLockList {
 		Integer[] intArray = new Integer[size];
 		for(int i = 0 ; i < size ; i++) {
 			Integer number = generator.nextInt();
-			number = number % 101;
-			number = Math.abs(number);
 			intArray[i] = number;
 			//System.out.println(i);
 		}
@@ -48,7 +46,7 @@ public class TesterOptimisticFGLockList {
 	private void createThreads() {
 		this.addThreadArray = new AddThread[this.threadNumber];
 		this.removeThreadArray = new RemoveThread[this.threadNumber];
-		int arraySize = 100000 / (2*this.threadNumber);
+		int arraySize = 50000 / this.threadNumber;
 		System.out.println("Each thread will get "+arraySize+" numbers");
 		for(int i = 0 ; i < this.threadNumber ; i++) {
 			this.addThreadArray[i] = new AddThread(this.createNumberArray(arraySize));
@@ -93,7 +91,7 @@ public class TesterOptimisticFGLockList {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is adding number: "+i);
-			TesterOptimisticFGLockList.this.list.add(i);
+			TesterUnboundedLockFreeQueue.this.queue.enq(i);
 		}
 	}
 	
@@ -116,7 +114,7 @@ public class TesterOptimisticFGLockList {
 		
 		public void manipulateList(Integer i) {
 			//System.out.println("Thread is removing number: "+i);
-			TesterOptimisticFGLockList.this.list.remove(i);
+			TesterUnboundedLockFreeQueue.this.queue.deq();
 		}
 	}
 }
