@@ -3,12 +3,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class UnboundedLockBasedQueue {
 
-	private Node head,tail;
-	private ReentrantLock enqLock , deqLock;
+	protected Node head,tail;
+	protected volatile ReentrantLock enqLock , deqLock;
 	
 	public UnboundedLockBasedQueue() {
 		this.head = new Node(0);
-		this.tail = new Node(0);
+		this.tail = this.head;
 		this.head.successor = this.tail;
 		this.enqLock = new ReentrantLock();
 		this.deqLock = new ReentrantLock();
@@ -18,8 +18,8 @@ public class UnboundedLockBasedQueue {
 		this.enqLock.lock();
 		try {
 			Node newNode = new Node(i);
-			tail.successor = newNode;
-			tail = newNode;
+			this.tail.successor = newNode;
+			this.tail = newNode;
 		} finally{
 			this.enqLock.unlock();
 		}
@@ -29,11 +29,11 @@ public class UnboundedLockBasedQueue {
 		Integer retVal = null;
 		this.deqLock.lock();
 		try {
-			if (head.successor == null) {
-				System.out.println("Queue empty");	
+			if (this.head.successor == this.tail || this.head.successor == null) {
+				//System.out.println("Queue empty");	
 			} else {
-				retVal = head.successor.value();
-				head = head.successor;
+				retVal = this.head.successor.value;
+				head = this.head.successor;
 			}
 			return retVal;
 		} finally {
@@ -42,16 +42,12 @@ public class UnboundedLockBasedQueue {
 	}
 	
 	public class Node {
-		private int value;
+		public int value;
 		public volatile Node successor;
 		
 		public Node(int i){
 			this.value = i;
 			this.successor = null;
-		}
-		
-		public int value() {
-			return value;
 		}
 	}
 	

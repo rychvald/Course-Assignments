@@ -1,0 +1,12 @@
+Assignment5, Exercise 3 results of the tests
+
+| Algorithm 	| Threads 	| time 		|
+| LockFree		| 2			| 190254us	|
+| LockFree		| 4			| 119218us	|
+| LockFree		| 8			| 86906us	|
+| LockBased		| 2			| 181079us	|
+| LockBased		| 4			| 186389us	|
+| LockBased		| 8			| 299221us	|
+
+Remarks:
+We see that for the LockBased algorithm, the time increases with a growing number of threads, as expected. However, for the lock free approach, it is very interesting to see that the time actually decreases. For two threads the LockFree approach performs worse than the LockBased. These characteristics are probably due to the points mentioned on slide 33 of the Queue lecture: When only two threads access the stack, we get more contention on the stack, while when we increase the number of threads, the chance is higher that more pushs and pops collide and, therefore, the array needs not to be accessed. This seems to abruptly enhance the performance of the algorithm.

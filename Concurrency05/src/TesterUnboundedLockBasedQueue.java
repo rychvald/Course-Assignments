@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TesterUnboundedLockBasedQueue {
 	
@@ -18,8 +19,9 @@ public class TesterUnboundedLockBasedQueue {
 
 	private UnboundedLockBasedQueue queue;
 	private int threadNumber;
-	private AddThread[] addThreadArray;
-	private RemoveThread[] removeThreadArray;
+	private EnqThread[] enqThreadArray;
+	private DeqThread[] deqThreadArray;
+	private AtomicInteger mySyncPoint = new AtomicInteger(0);
 	
 	public TesterUnboundedLockBasedQueue() {
 		this(2);
@@ -44,44 +46,48 @@ public class TesterUnboundedLockBasedQueue {
 	}
 	
 	private void createThreads() {
-		this.addThreadArray = new AddThread[this.threadNumber];
-		this.removeThreadArray = new RemoveThread[this.threadNumber];
+		this.enqThreadArray = new EnqThread[this.threadNumber];
+		this.deqThreadArray = new DeqThread[this.threadNumber];
 		int arraySize = 50000 / this.threadNumber;
 		System.out.println("Each thread will get "+arraySize+" numbers");
 		for(int i = 0 ; i < this.threadNumber ; i++) {
-			this.addThreadArray[i] = new AddThread(this.createNumberArray(arraySize));
-			this.removeThreadArray[i] = new RemoveThread(this.createNumberArray(arraySize));
+			this.enqThreadArray[i] = new EnqThread(this.createNumberArray(arraySize));
+			this.deqThreadArray[i] = new DeqThread(arraySize);
 		}
 	}
 	
 	public void startThreads() {
 		for( int i = 0 ; i < (this.threadNumber) ; i++) {
-			this.addThreadArray[i].start();
-			this.removeThreadArray[i].start();
+			this.enqThreadArray[i].start();
+			this.deqThreadArray[i].start();
 		}
 	}
 	
 	private void waitForEnd() {
 		for(int i = 0 ; i < (this.threadNumber) ; i++) {
 			try {
-				this.addThreadArray[i].join();
-				this.removeThreadArray[i].join();
+				this.enqThreadArray[i].join();
+				this.deqThreadArray[i].join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	public class AddThread extends Thread {
+	public class EnqThread extends Thread {
 		
 		private Integer[] myArray;
 		
-		public AddThread(Integer[] array) {
+		public EnqThread(Integer[] array) {
 			super();
 			this.myArray = array;
 		}
 		
 		public void run() {
+			TesterUnboundedLockBasedQueue.this.mySyncPoint.addAndGet(1);				
+			while (TesterUnboundedLockBasedQueue.this.mySyncPoint.get() < TesterUnboundedLockBasedQueue.this.threadNumber*2) {
+				
+			}; System.out.println("EnqThread finished waiting for sync.");
 			for(int i = 0 ; i < myArray.length ; i++){
 				this.manipulateList(myArray[i]);
 				yield();
@@ -90,31 +96,36 @@ public class TesterUnboundedLockBasedQueue {
 		}
 		
 		public void manipulateList(Integer i) {
-			//System.out.println("Thread is adding number: "+i);
+			//System.out.println("Thread is enqueueing number: "+i);
 			TesterUnboundedLockBasedQueue.this.queue.enq(i);
 		}
 	}
 	
-	public class RemoveThread extends Thread {
-
-		private Integer[] myArray;
+	public class DeqThread extends Thread {
 		
-		public RemoveThread(Integer[] array) {
+		private int size;
+		
+		public DeqThread(int size) {
 			super();
-			this.myArray = array;
+			this.size = size;
 		}
 		
 		public void run() {
-			for(int i = 0 ; i < myArray.length ; i++){
-				this.manipulateList(myArray[i]);
+			TesterUnboundedLockBasedQueue.this.mySyncPoint.addAndGet(1);				
+			while (TesterUnboundedLockBasedQueue.this.mySyncPoint.get() < TesterUnboundedLockBasedQueue.this.threadNumber*2) {
+				
+			}; System.out.println("EnqThread finished waiting for sync.");
+			for(int i = 0 ; i < this.size ; i++){
+				this.manipulateList();
 				yield();
 			}
 			System.out.println("Thread finished removing numbers");
 		}
 		
-		public void manipulateList(Integer i) {
-			//System.out.println("Thread is removing number: "+i);
+		public void manipulateList() {
+			//Integer i;
 			TesterUnboundedLockBasedQueue.this.queue.deq();
+			//System.out.println("Thread is dequeueing number: "+i);
 		}
 	}
 }

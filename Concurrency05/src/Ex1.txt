@@ -3,4 +3,4 @@ Assignment 5, Exercise1
 Yes, it is necessary to keep the check within the lock. The reason is that between the check and the manipulation of the queue, the queue may change and therefore, if we do not lock, the check we may have done may become invalid. If we wanted to omit locking, we could use an optimistic approach, as in the last assignment, however, we would need to recheck before actually applying the manipulation.
 What could go wrong:
 Initially, the queue holds one item.
-Thread A wants to dequeue and checks. As the queue holds one item, Thread A can continue. Before it continues, Thread B is given processing time. It wants to dequeue as well. It passes the check and can continue. Now, both threads can dequeue an item, even though the queue only holds one item. This will lead to a problem.
+Thread A wants to dequeue and checks. As the queue holds one item, Thread A can continue. Before it continues, Thread B is given access. It wants to dequeue as well. It passes the check and can continue. Now, both threads can dequeue an item, even though the queue only holds one item. This will lead to a problem.
